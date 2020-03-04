@@ -117,6 +117,11 @@ void TanenLiveV0AudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     lowPassFilter.prepare(spec);
     lowPassFilter.reset();
     
+    fxReverbChain.prepare (spec);
+    
+    // Reverb
+    
+    
 }
 
 void TanenLiveV0AudioProcessor::releaseResources()
@@ -159,11 +164,15 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    dsp::AudioBlock<float> block (buffer);
+    dsp::AudioBlock<float> block (buffer); // [4]
     lastSampleRate = getSampleRate();
     updateFilter();
     lowPassFilter.process(dsp::ProcessContextReplacing<float> (block));
 
+    auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples()); // [5]
+    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);      // [6]
+    fxReverbChain.process(contextToUse);                                                  // [7]
+    
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);

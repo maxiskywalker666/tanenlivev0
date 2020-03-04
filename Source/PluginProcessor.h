@@ -63,6 +63,14 @@ private:
     AudioParameterFloat* mFilterResonanceParameter;
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> lowPassFilter;
+    enum
+    {
+        reverbIndex             // [2]
+    };
+ 
+    juce::dsp::ProcessorChain<juce::dsp::Reverb> fxReverbChain; // [1]
+    //dsp::Reverb::Reverb();
+    //dsp::Reverb::Parameters();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessor)
 };
