@@ -53,7 +53,7 @@ private:
     // REVERB Parameters
     Slider mReverbDryWetSlider;
     Slider mReverbPitchSlider;
-    Slider mReverbDecaySlider;
+    Slider mReverbRoomSizeSlider;
     // TANEN LIVE SEND Parameters
     Slider mSendLiveSlider;
     ComboBox mReverbSendType;

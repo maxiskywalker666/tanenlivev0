@@ -17,7 +17,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (500, 600);
     auto& params = processor.getParameters();
     // FILTER CUTOFF FREQUENCY
     AudioParameterFloat* filterCutoffParameter = (AudioParameterFloat*)params.getUnchecked(0);
@@ -43,9 +43,19 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterResSlider.onValueChange = [this, filterResonanceParameter] { *filterResonanceParameter = mFilterResSlider.getValue(); };
     mFilterResSlider.onDragStart = [filterResonanceParameter] { filterResonanceParameter->beginChangeGesture(); };
     mFilterResSlider.onDragEnd = [filterResonanceParameter] { filterResonanceParameter->endChangeGesture(); };
+    
     // REVERB DRYWET
-    //AudioParameterFloat* reverbDryWetParameter = (AudioParameterFloat*)params.getUnchecked(2);
-    //mReverbDryWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
+    AudioParameterFloat* reverbDryWetParameter = (AudioParameterFloat*)params.getUnchecked(2);
+    mReverbDryWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
+    mReverbDryWetSlider.setBounds(100, 0, 100, 100);
+    mReverbDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mReverbDryWetSlider.setValue(*reverbDryWetParameter);
+    addAndMakeVisible(mReverbDryWetSlider);
+    
+    mReverbDryWetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mReverbDryWetSlider.onValueChange = [this, reverbDryWetParameter] { *reverbDryWetParameter = mReverbDryWetSlider.getValue(); };
+    mReverbDryWetSlider.onDragStart = [reverbDryWetParameter] { reverbDryWetParameter->beginChangeGesture(); };
+    mReverbDryWetSlider.onDragEnd = [reverbDryWetParameter] { reverbDryWetParameter->endChangeGesture(); };
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()

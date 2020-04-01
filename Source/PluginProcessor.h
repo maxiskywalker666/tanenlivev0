@@ -61,6 +61,9 @@ public:
 private:
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
+    AudioParameterFloat* mReverbDryWetParameter;
+    // Reverb parameters
+    
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> lowPassFilter;
     enum

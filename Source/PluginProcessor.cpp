@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+using namespace juce;
 
 //==============================================================================
 TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
@@ -33,6 +34,11 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             600.0f));
     addParameter(mFilterResonanceParameter = new AudioParameterFloat("resonance",
                                                             "Resonance",
+                                                            1.0f,
+                                                            5.0f,
+                                                            1.0f));
+    addParameter(mReverbDryWetParameter = new AudioParameterFloat("dryWetReverb",
+                                                            "dryWetReverb",
                                                             1.0f,
                                                             5.0f,
                                                             1.0f));
@@ -117,7 +123,7 @@ void TanenLiveV0AudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     lowPassFilter.prepare(spec);
     lowPassFilter.reset();
     
-    fxReverbChain.prepare (spec);
+    fxReverbChain.prepare(spec);
     
     // Reverb
     
@@ -169,9 +175,26 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     updateFilter();
     lowPassFilter.process(dsp::ProcessContextReplacing<float> (block));
 
+    //TODO add OnOff or 0-100 button to control the dry/wet reverb.
     auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples()); // [5]
     auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);      // [6]
+    //TODO get reverb parameters
+    const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
+    std::cout << "roomSize : ";
+    std::cout << reverbParameters.roomSize;
+    std::cout << "\n dryLevel : ";
+    std::cout << reverbParameters.dryLevel;
+    std::cout << "\n \n";
+    //juce::Reverb::Parameters& newParams = &reverbParameters;
+    //reverbParameters.Parameters::dryLevel = 1.0f;
+    //reverbParameters.roomSize = 1.0f;
+    // Process the sound with the reverb (?)
     fxReverbChain.process(contextToUse);                                                  // [7]
+    juce::Reverb::Parameters reverbParametersVar;
+    reverbParametersVar.dryLevel = reverbParameters.dryLevel;
+    reverbParametersVar = reverbParameters;
+    reverbParametersVar.roomSize = 1.0f;
+    fxReverbChain.getProcessor().setParameters(reverbParametersVar);
     
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
