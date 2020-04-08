@@ -42,6 +42,11 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
+    addParameter(mReverbRoomSizeParameter = new AudioParameterFloat("roomSizeReverb",
+                                                            "roomSizeReverb",
+                                                            0.0f,
+                                                            1.0f,
+                                                            0.0f));
 }
 
 TanenLiveV0AudioProcessor::~TanenLiveV0AudioProcessor()
@@ -194,9 +199,8 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 //    reverbParametersVar.dryLevel = reverbParameters.dryLevel;
     reverbParametersVar.dryLevel = 1.0f;
     reverbParametersVar = reverbParameters;
-    reverbParametersVar.roomSize = 1.0f;
-    float wetLevel = *mReverbDryWetParameter;
-    reverbParametersVar.wetLevel = wetLevel;
+    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
+    reverbParametersVar.wetLevel = *mReverbDryWetParameter;
     
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
     

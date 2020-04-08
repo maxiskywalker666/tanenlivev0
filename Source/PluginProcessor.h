@@ -62,6 +62,7 @@ private:
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
     AudioParameterFloat* mReverbDryWetParameter;
+    AudioParameterFloat* mReverbRoomSizeParameter;
     // Reverb parameters
     
     float lastSampleRate;

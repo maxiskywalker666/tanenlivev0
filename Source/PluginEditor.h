@@ -34,8 +34,8 @@ private:
     // TANEN LIVE General Parameters
     
     // FILTER Parameters
-    Slider mFilterCutoffSlider;
-    Slider mFilterResSlider;
+    Slider mFilterCutoffSlider; // OK
+    Slider mFilterResSlider; // OK
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterCutoffValue;
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterResValue;
     
@@ -51,9 +51,9 @@ private:
     Slider mDelayFeedbackSlider;
     ComboBox mReverseTimeType;
     // REVERB Parameters
-    Slider mReverbDryWetSlider;
+    Slider mReverbDryWetSlider; // OK
     Slider mReverbPitchSlider;
-    Slider mReverbRoomSizeSlider;
+    Slider mReverbRoomSizeSlider; // TODO
     // TANEN LIVE SEND Parameters
     Slider mSendLiveSlider;
     ComboBox mReverbSendType;
