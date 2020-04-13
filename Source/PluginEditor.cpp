@@ -19,6 +19,19 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     // editor's size to whatever you need it to be.
     setSize (500, 600);
     auto& params = processor.getParameters();
+    // COMBOBOX FILTER TYPE
+    AudioParameterInt* filterTypeParameter = (AudioParameterInt*)params.getUnchecked(5);
+    mFilterType.setBounds(0, 210, 100, 30);
+    mFilterType.addItem("LOWPASS", 1);
+    mFilterType.addItem("HIPASS", 2);
+    addAndMakeVisible(mFilterType);
+    mFilterType.onChange = [this, filterTypeParameter] {
+        filterTypeParameter->beginChangeGesture();
+        *filterTypeParameter = mFilterType.getSelectedItemIndex();
+        filterTypeParameter->endChangeGesture();
+    };
+    mFilterType.setSelectedItemIndex(*filterTypeParameter);
+    
     // FILTER CUTOFF FREQUENCY
     AudioParameterFloat* filterCutoffParameter = (AudioParameterFloat*)params.getUnchecked(0);
     mFilterCutoffSlider.setRange(filterCutoffParameter->range.start, filterCutoffParameter->range.end);
@@ -69,6 +82,19 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbRoomSizeSlider.onValueChange = [this, reverbRoomSizeParameter] { *reverbRoomSizeParameter = mReverbRoomSizeSlider.getValue(); };
     mReverbRoomSizeSlider.onDragStart = [reverbRoomSizeParameter] { reverbRoomSizeParameter->beginChangeGesture(); };
     mReverbRoomSizeSlider.onDragEnd = [reverbRoomSizeParameter] { reverbRoomSizeParameter->endChangeGesture(); };
+    
+    // REVERB WIDTH
+    AudioParameterFloat* reverbWidthParameter = (AudioParameterFloat*)params.getUnchecked(4);
+    mReverbWidthSlider.setRange(reverbWidthParameter->range.start, reverbWidthParameter->range.end);
+    mReverbWidthSlider.setBounds(100, 200, 100, 100);
+    mReverbWidthSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mReverbWidthSlider.setValue(*reverbWidthParameter);
+    addAndMakeVisible(mReverbWidthSlider);
+    
+    mReverbWidthSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mReverbWidthSlider.onValueChange = [this, reverbWidthParameter] { *reverbWidthParameter = mReverbRoomSizeSlider.getValue(); };
+    mReverbWidthSlider.onDragStart = [reverbWidthParameter] { reverbWidthParameter->beginChangeGesture(); };
+    mReverbWidthSlider.onDragEnd = [reverbWidthParameter] { reverbWidthParameter->endChangeGesture(); };
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()

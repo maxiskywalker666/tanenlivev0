@@ -34,7 +34,7 @@ private:
     // TANEN LIVE General Parameters
     
     // FILTER Parameters
-    Slider mFilterCutoffSlider; // OK
+    Slider mFilterCutoffSlider; // OK - log scale to do
     Slider mFilterResSlider; // OK
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterCutoffValue;
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterResValue;
@@ -43,7 +43,7 @@ private:
     Slider mFilterDecaySlider;
     Slider mFilterSustainSlider;
     Slider mFilterReleaseSlider;
-    ComboBox mFilterType;
+    ComboBox mFilterType; // OK
     // DELAY Parameters
     Slider mDelayDryWetSlider;
     Slider mDelayPitchSlider;
@@ -53,7 +53,8 @@ private:
     // REVERB Parameters
     Slider mReverbDryWetSlider; // OK
     Slider mReverbPitchSlider;
-    Slider mReverbRoomSizeSlider; // TODO
+    Slider mReverbRoomSizeSlider; // OK
+    Slider mReverbWidthSlider; // OK - bug to fix
     // TANEN LIVE SEND Parameters
     Slider mSendLiveSlider;
     ComboBox mReverbSendType;
@@ -61,6 +62,6 @@ private:
     // If mDelayTimeSendType is ON the DelayTimeSlider value is applied to the value 0 of mSendLiveSlider.
     ComboBox mDelayTimeSendType;
     //TODO LFO Parameters
-    
+        
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

@@ -29,24 +29,34 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     //tree.createAndAddParameter("resonance", "Resonance", "resonance", resRange, 1.0f, nullptr, nullptr);
     addParameter(mFilterCutoffParameter = new AudioParameterFloat("cutoff",
                                                             "Cutoff",
-                                                            20.0f,
-                                                            20000.0f,
-                                                            600.0f));
+                                                            20.0f, // begin
+                                                            20000.0f, // end
+                                                            20000.0f)); // default position
     addParameter(mFilterResonanceParameter = new AudioParameterFloat("resonance",
                                                             "Resonance",
                                                             1.0f,
                                                             5.0f,
                                                             1.0f));
     addParameter(mReverbDryWetParameter = new AudioParameterFloat("dryWetReverb",
-                                                            "dryWetReverb",
+                                                            "DryWetReverb",
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
     addParameter(mReverbRoomSizeParameter = new AudioParameterFloat("roomSizeReverb",
-                                                            "roomSizeReverb",
+                                                            "RoomSizeReverb",
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
+    addParameter(mReverbWidthParameter = new AudioParameterFloat("widthReverb",
+                                                            "WidthReverb",
+                                                            0.0f,
+                                                            1.0f,
+                                                            0.0f));
+    addParameter(mFilterTypeParameter = new AudioParameterInt("filterType",
+                                                            "FilterType",
+                                                            0,
+                                                            1,
+                                                            0));
 }
 
 TanenLiveV0AudioProcessor::~TanenLiveV0AudioProcessor()
@@ -163,7 +173,14 @@ void TanenLiveV0AudioProcessor::updateFilter() {
     float freq = *mFilterCutoffParameter;
     //float res = *tree.getRawParameterValue("resonance");
     float res = *mFilterResonanceParameter;
-    *lowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
+    /** LOWPASS */
+    if (*mFilterTypeParameter == 0) {
+        *lowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
+    /** HIPASS */
+    } else {
+        // TODO Adjust value to 0 when hi pass selected ? Put a logaritmic scale on the button to be precise on the bass.
+        *lowPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, freq, res);
+    }
 }
 
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -201,6 +218,8 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     reverbParametersVar = reverbParameters;
     reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
     reverbParametersVar.wetLevel = *mReverbDryWetParameter;
+    reverbParametersVar.width = *mReverbWidthParameter; // WIDTH doesn't goes down again
+    reverbParametersVar.damping = 1.0f; // TO TEST: not much difference between 0 and 1
     
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
     

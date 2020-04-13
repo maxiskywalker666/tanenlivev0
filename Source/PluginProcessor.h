@@ -59,11 +59,14 @@ public:
     //AudioProcessorValueTreeState tree;
 
 private:
+    // FILTER PARAMETERS
+    AudioParameterInt* mFilterTypeParameter;
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
+    // REVERB PARAMETERS
     AudioParameterFloat* mReverbDryWetParameter;
     AudioParameterFloat* mReverbRoomSizeParameter;
-    // Reverb parameters
+    AudioParameterFloat* mReverbWidthParameter;
     
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> lowPassFilter;
