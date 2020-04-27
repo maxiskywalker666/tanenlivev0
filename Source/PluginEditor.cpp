@@ -12,12 +12,19 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+
+
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (500, 600);
+    setSize (500, 400);
+    byPassButton.setLookAndFeel(&reverbLook);
+    addAndMakeVisible(byPassButton);
+    //addAndMakeVisible(b2);
+    //addAndMakeVisible(b3);
+    
     auto& params = processor.getParameters();
     // COMBOBOX FILTER TYPE
     AudioParameterInt* filterTypeParameter = (AudioParameterInt*)params.getUnchecked(5);
@@ -38,6 +45,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterCutoffSlider.setBounds(0, 0, 100, 100);
     mFilterCutoffSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterCutoffSlider.setValue(*filterCutoffParameter);
+    mFilterCutoffSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterCutoffSlider);
     
     mFilterCutoffSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -50,6 +58,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterResSlider.setBounds(0, 100, 100, 100);
     mFilterResSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterResSlider.setValue(*filterResonanceParameter);
+    mFilterResSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterResSlider);
     
     mFilterResSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -63,6 +72,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbDryWetSlider.setBounds(100, 0, 100, 100);
     mReverbDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbDryWetSlider.setValue(*reverbDryWetParameter);
+    mReverbDryWetSlider.setLookAndFeel(&reverbLook);
     addAndMakeVisible(mReverbDryWetSlider);
     
     mReverbDryWetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -76,6 +86,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbRoomSizeSlider.setBounds(100, 100, 100, 100);
     mReverbRoomSizeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbRoomSizeSlider.setValue(*reverbRoomSizeParameter);
+    mReverbRoomSizeSlider.setLookAndFeel(&reverbLook);
     addAndMakeVisible(mReverbRoomSizeSlider);
     
     mReverbRoomSizeSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -89,6 +100,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbWidthSlider.setBounds(100, 200, 100, 100);
     mReverbWidthSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbWidthSlider.setValue(*reverbWidthParameter);
+    mReverbWidthSlider.setLookAndFeel(&reverbLook);
     addAndMakeVisible(mReverbWidthSlider);
     
     mReverbWidthSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -109,11 +121,19 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 
     g.setColour (Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("TANEN LIVE MACHINE", getLocalBounds(), Justification::centred, 1);
+    g.drawFittedText ("TANEN LIVE MACHINE", getLocalBounds(), Justification::centredBottom, 1);
 }
 
 void TanenLiveV0AudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    auto r = getLocalBounds();
+    auto topSection = r.removeFromTop(100);
+    //byPassButton.setBounds(topSection.removeFromLeft(100).reduced(10));
+    b2.setBounds(topSection.reduced(10));
+    b3.setBounds(r.reduced(10));
+    
+    byPassButton.setBounds(100, 310, 100, 30);
 }
+
