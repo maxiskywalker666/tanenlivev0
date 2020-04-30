@@ -137,6 +137,7 @@ private:
     // access the processor object that created it.
     TanenLiveV0AudioProcessor& processor;
 
+    ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
     // TANEN LIVE General Parameters

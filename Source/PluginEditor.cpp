@@ -17,6 +17,13 @@
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    auto t800Image = ImageCache::getFromMemory(BinaryData::T800_png, BinaryData::T800_pngSize);
+    if (!t800Image.isNull())
+        mImageComponent.setImage(t800Image, RectanglePlacement::stretchToFit);
+    else
+        jassert(!t800Image.isNull());
+    addAndMakeVisible(mImageComponent);
+    
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (500, 400);
@@ -133,6 +140,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     //byPassButton.setBounds(topSection.removeFromLeft(100).reduced(10));
     b2.setBounds(topSection.reduced(10));
     b3.setBounds(r.reduced(10));
+    mImageComponent.setBounds(300, 10, 150, 300);
     
     byPassButton.setBounds(100, 310, 100, 30);
 }
