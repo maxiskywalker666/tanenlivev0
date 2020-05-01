@@ -3,6 +3,7 @@
 <JUCERPROJECT id="ok3UBN" name="TanenLiveV0" projectType="audioplug" jucerVersion="5.4.5">
   <MAINGROUP id="SQKF6N" name="TanenLiveV0">
     <GROUP id="{BCB158BD-1CED-C5CD-E147-C0596FEADF5F}" name="Resources">
+      <FILE id="Ay62sK" name="T1000.png" compile="0" resource="1" file="Resources/T1000.png"/>
       <FILE id="niZw31" name="T800.png" compile="0" resource="1" file="Resources/T800.png"
             xcodeResource="0"/>
     </GROUP>

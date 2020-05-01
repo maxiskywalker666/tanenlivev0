@@ -17,25 +17,23 @@
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    auto t800Image = ImageCache::getFromMemory(BinaryData::T800_png, BinaryData::T800_pngSize);
-    if (!t800Image.isNull())
-        mImageComponent.setImage(t800Image, RectanglePlacement::stretchToFit);
+    auto t1000Image = ImageCache::getFromMemory(BinaryData::T1000_png, BinaryData::T1000_pngSize);
+    if (!t1000Image.isNull())
+        mImageComponent.setImage(t1000Image, RectanglePlacement::stretchToFit);
     else
-        jassert(!t800Image.isNull());
+        jassert(!t1000Image.isNull());
     addAndMakeVisible(mImageComponent);
     
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (500, 400);
+    setSize (500, 450);
     byPassButton.setLookAndFeel(&reverbLook);
     addAndMakeVisible(byPassButton);
-    //addAndMakeVisible(b2);
-    //addAndMakeVisible(b3);
     
     auto& params = processor.getParameters();
     // COMBOBOX FILTER TYPE
     AudioParameterInt* filterTypeParameter = (AudioParameterInt*)params.getUnchecked(5);
-    mFilterType.setBounds(0, 210, 100, 30);
+    mFilterType.setBounds(0, 280, 100, 30);
     mFilterType.addItem("LOWPASS", 1);
     mFilterType.addItem("HIPASS", 2);
     addAndMakeVisible(mFilterType);
@@ -49,7 +47,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     // FILTER CUTOFF FREQUENCY
     AudioParameterFloat* filterCutoffParameter = (AudioParameterFloat*)params.getUnchecked(0);
     mFilterCutoffSlider.setRange(filterCutoffParameter->range.start, filterCutoffParameter->range.end);
-    mFilterCutoffSlider.setBounds(0, 0, 100, 100);
+    mFilterCutoffSlider.setBounds(0, 30, 100, 100);
     mFilterCutoffSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterCutoffSlider.setValue(*filterCutoffParameter);
     mFilterCutoffSlider.setLookAndFeel(&filterLook);
@@ -59,10 +57,18 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterCutoffSlider.onValueChange = [this, filterCutoffParameter] { *filterCutoffParameter = mFilterCutoffSlider.getValue(); };
     mFilterCutoffSlider.onDragStart = [filterCutoffParameter] { filterCutoffParameter->beginChangeGesture(); };
     mFilterCutoffSlider.onDragEnd = [filterCutoffParameter] { filterCutoffParameter->endChangeGesture(); };
+    mFilterCutoffSlider.setTextValueSuffix (" Hz");     // [2]
+    //mFilterCutoffSlider.addListener (this);
+    // frequency label
+    addAndMakeVisible (frequencyLabel);
+    //frequencyLabel.setBounds(0, 100, 100, 100);
+    frequencyLabel.setText ("CUTOFF", dontSendNotification);
+    frequencyLabel.attachToComponent (&mFilterCutoffSlider, false);
+    
     // FILTER RESONANCE
     AudioParameterFloat* filterResonanceParameter = (AudioParameterFloat*)params.getUnchecked(1);
     mFilterResSlider.setRange(filterResonanceParameter->range.start, filterResonanceParameter->range.end);
-    mFilterResSlider.setBounds(0, 100, 100, 100);
+    mFilterResSlider.setBounds(0, 160, 100, 100);
     mFilterResSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterResSlider.setValue(*filterResonanceParameter);
     mFilterResSlider.setLookAndFeel(&filterLook);
@@ -72,11 +78,16 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterResSlider.onValueChange = [this, filterResonanceParameter] { *filterResonanceParameter = mFilterResSlider.getValue(); };
     mFilterResSlider.onDragStart = [filterResonanceParameter] { filterResonanceParameter->beginChangeGesture(); };
     mFilterResSlider.onDragEnd = [filterResonanceParameter] { filterResonanceParameter->endChangeGesture(); };
+    // resonance label
+    addAndMakeVisible (resonanceLabel);
+    //frequencyLabel.setBounds(0, 100, 100, 100);
+    resonanceLabel.setText ("RESONANCE", dontSendNotification);
+    resonanceLabel.attachToComponent (&mFilterResSlider, false);
     
     // REVERB DRYWET
     AudioParameterFloat* reverbDryWetParameter = (AudioParameterFloat*)params.getUnchecked(2);
     mReverbDryWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
-    mReverbDryWetSlider.setBounds(100, 0, 100, 100);
+    mReverbDryWetSlider.setBounds(110, 0, 100, 100);
     mReverbDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbDryWetSlider.setValue(*reverbDryWetParameter);
     mReverbDryWetSlider.setLookAndFeel(&reverbLook);
@@ -90,7 +101,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     // REVERB ROOMSIZE
     AudioParameterFloat* reverbRoomSizeParameter = (AudioParameterFloat*)params.getUnchecked(3);
     mReverbRoomSizeSlider.setRange(reverbRoomSizeParameter->range.start, reverbRoomSizeParameter->range.end);
-    mReverbRoomSizeSlider.setBounds(100, 100, 100, 100);
+    mReverbRoomSizeSlider.setBounds(110, 120, 100, 100);
     mReverbRoomSizeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbRoomSizeSlider.setValue(*reverbRoomSizeParameter);
     mReverbRoomSizeSlider.setLookAndFeel(&reverbLook);
@@ -104,7 +115,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     // REVERB WIDTH
     AudioParameterFloat* reverbWidthParameter = (AudioParameterFloat*)params.getUnchecked(4);
     mReverbWidthSlider.setRange(reverbWidthParameter->range.start, reverbWidthParameter->range.end);
-    mReverbWidthSlider.setBounds(100, 200, 100, 100);
+    mReverbWidthSlider.setBounds(110, 240, 100, 100);
     mReverbWidthSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbWidthSlider.setValue(*reverbWidthParameter);
     mReverbWidthSlider.setLookAndFeel(&reverbLook);
@@ -136,12 +147,8 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto r = getLocalBounds();
-    auto topSection = r.removeFromTop(100);
-    //byPassButton.setBounds(topSection.removeFromLeft(100).reduced(10));
-    b2.setBounds(topSection.reduced(10));
-    b3.setBounds(r.reduced(10));
-    mImageComponent.setBounds(300, 10, 150, 300);
+    mImageComponent.setBounds(280, 10, 220, 240);
     
-    byPassButton.setBounds(100, 310, 100, 30);
+    byPassButton.setBounds(110, 380, 100, 30);
 }
 

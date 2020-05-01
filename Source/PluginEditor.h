@@ -144,7 +144,9 @@ private:
     TextButton byPassButton{"BYPASS"}, b2{"2"}, b3{"3"};
     // FILTER Parameters
     Slider mFilterCutoffSlider; // OK - log scale to do
+    Label frequencyLabel;
     Slider mFilterResSlider; // OK
+    Label resonanceLabel;
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterCutoffValue;
     ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterResValue;
     
