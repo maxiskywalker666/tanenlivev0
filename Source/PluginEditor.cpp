@@ -50,18 +50,17 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterCutoffSlider.setBounds(0, 30, 100, 100);
     mFilterCutoffSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterCutoffSlider.setValue(*filterCutoffParameter);
+    mFilterCutoffSlider.setSkewFactorFromMidPoint (500);
     mFilterCutoffSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterCutoffSlider);
     
-    mFilterCutoffSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mFilterCutoffSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, mFilterCutoffSlider.getTextBoxHeight());
     mFilterCutoffSlider.onValueChange = [this, filterCutoffParameter] { *filterCutoffParameter = mFilterCutoffSlider.getValue(); };
     mFilterCutoffSlider.onDragStart = [filterCutoffParameter] { filterCutoffParameter->beginChangeGesture(); };
     mFilterCutoffSlider.onDragEnd = [filterCutoffParameter] { filterCutoffParameter->endChangeGesture(); };
     mFilterCutoffSlider.setTextValueSuffix (" Hz");     // [2]
     //mFilterCutoffSlider.addListener (this);
     // frequency label
-    addAndMakeVisible (frequencyLabel);
-    //frequencyLabel.setBounds(0, 100, 100, 100);
     frequencyLabel.setText ("CUTOFF", dontSendNotification);
     frequencyLabel.attachToComponent (&mFilterCutoffSlider, false);
     
@@ -74,13 +73,11 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterResSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterResSlider);
     
-    mFilterResSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mFilterResSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, mFilterResSlider.getTextBoxHeight());
     mFilterResSlider.onValueChange = [this, filterResonanceParameter] { *filterResonanceParameter = mFilterResSlider.getValue(); };
     mFilterResSlider.onDragStart = [filterResonanceParameter] { filterResonanceParameter->beginChangeGesture(); };
     mFilterResSlider.onDragEnd = [filterResonanceParameter] { filterResonanceParameter->endChangeGesture(); };
     // resonance label
-    addAndMakeVisible (resonanceLabel);
-    //frequencyLabel.setBounds(0, 100, 100, 100);
     resonanceLabel.setText ("RESONANCE", dontSendNotification);
     resonanceLabel.attachToComponent (&mFilterResSlider, false);
     
