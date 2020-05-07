@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../JuceLibraryCode/JuceHeader.h" // include juce_core that include juce_UniTest
+// #include "/Applications/JUCE/modules/juce_core/unit_tests/juce_UnitTest.h"
 
 //==============================================================================
 /**
@@ -56,13 +57,29 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void updateFilter();
+    void updateReverb();
     //AudioProcessorValueTreeState tree;
+    static void runTest();
 
 private:
+    // FILTER PARAMETERS
+    AudioParameterInt* mFilterTypeParameter;
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
+    // REVERB PARAMETERS
+    AudioParameterFloat* mReverbDryWetParameter;
+    AudioParameterFloat* mReverbRoomSizeParameter;
+    
     float lastSampleRate;
-    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> lowPassFilter;
+    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
+    enum
+    {
+        reverbIndex             // [2]
+    };
+ 
+    juce::dsp::ProcessorChain<juce::dsp::Reverb> fxReverbChain; // [1]
+    //dsp::Reverb::Reverb();
+    //dsp::Reverb::Parameters();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessor)
 };
