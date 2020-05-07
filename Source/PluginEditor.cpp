@@ -41,11 +41,14 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     //resSendButton.setLookAndFeel(&sendLook);
     resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(resSendButton);
-    reverbDryWetSendButton.setLookAndFeel(&sendLook);
+    //reverbDryWetSendButton.setLookAndFeel(&sendLook);
+    reverbDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(reverbDryWetSendButton);
-    reverbSizeSendButton.setLookAndFeel(&sendLook);
+    //reverbSizeSendButton.setLookAndFeel(&sendLook);
+    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(reverbSizeSendButton);
-    delaySendButton.setLookAndFeel(&sendLook);
+    //delaySendButton.setLookAndFeel(&sendLook);
+    delaySendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(delaySendButton);
     
     auto& params = processor.getParameters();
@@ -126,53 +129,46 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbRoomSizeLabel.setText("SIZE", dontSendNotification);
 
     // SEND BUTTON EVENTS
-    //AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(5);
-    cutoffSendButton.setToggleState(false, NotificationType::dontSendNotification);
+    AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(5);
+    cutoffSendButton.setToggleState(*cutoffSendParameter, NotificationType::dontSendNotification);
     cutoffSendButton.addListener(this);
+    cutoffSendButton.onClick = [this, cutoffSendParameter]() {
+        if (*cutoffSendParameter == true) {
+            *cutoffSendParameter = false;
+        } else {
+            *cutoffSendParameter = true;
+        }
+    };
     resSendButton.setToggleState(false, NotificationType::dontSendNotification);
     resSendButton.addListener(this);
+    reverbDryWetSendButton.addListener(this);
+    reverbSizeSendButton.addListener(this);
+    delaySendButton.addListener(this);
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 {
 }
 
-void TanenLiveV0AudioProcessorEditor::sendFx() {
-    cutoffSendButton.setToggleState(true, NotificationType::dontSendNotification);
+void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
+    button->setToggleState(true, NotificationType::dontSendNotification);
     //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::red);
-    cutoffSendButton.setButtonText("SENDING");
+    button->setButtonText("SENDING");
 }
-void TanenLiveV0AudioProcessorEditor::bypassFx() {
-    cutoffSendButton.setToggleState(false, NotificationType::dontSendNotification);
+void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
+    button->setToggleState(false, NotificationType::dontSendNotification);
     //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::grey);
-    cutoffSendButton.setButtonText("BYPASSED");
-}
-void TanenLiveV0AudioProcessorEditor::sendResFx() {
-    resSendButton.setToggleState(true, NotificationType::dontSendNotification);
-    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::red);
-    resSendButton.setButtonText("SENDING");
-}
-void TanenLiveV0AudioProcessorEditor::bypassResFx() {
-    resSendButton.setToggleState(false, NotificationType::dontSendNotification);
-    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::grey);
-    resSendButton.setButtonText("BYPASSED");
+    button->setButtonText("BYPASSED");
 }
 
 void TanenLiveV0AudioProcessorEditor::buttonClicked(Button* button) {
     // WHAT TO DO AVEC BUTTON CLICKED
-    if (button == &cutoffSendButton) {
-        if (cutoffSendButton.getToggleStateValue().getValue()) {
-            cutoffSendButton.onClick =[this]() { bypassFx(); };
-        } else {
-            cutoffSendButton.onClick =[this]() { sendFx(); };
-        }
-    } else if (button == &resSendButton) {
-        if (resSendButton.getToggleStateValue().getValue()) {
-            resSendButton.onClick =[this]() { bypassResFx(); };
-        } else {
-            resSendButton.onClick =[this]() { sendResFx(); };
-        }
+    if (button->getToggleStateValue().getValue()) {
+        button->onClick =[this, button]() { bypassFx(button); };
+    } else {
+        button->onClick =[this, button]() { sendFx(button); };
     }
+  
 }
 
 //==============================================================================

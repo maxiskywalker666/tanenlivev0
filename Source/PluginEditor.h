@@ -142,10 +142,8 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void sendFx();
-    void bypassFx();
-    void sendResFx();
-    void bypassResFx();
+    void sendFx(Button* button);
+    void bypassFx(Button* button);
     void buttonClicked(Button* button) override;
 
 private:
