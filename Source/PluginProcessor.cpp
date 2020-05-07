@@ -10,6 +10,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+
 using namespace juce;
 
 //==============================================================================
@@ -18,15 +19,16 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     : AudioProcessor (BusesProperties()
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
                        .withOutput ("Output", AudioChannelSet::stereo(), true))
-                        , lowPassFilter(dsp::IIR::Coefficients<float>::makeLowPass(44100, 20000.0f, 0.1f))
+                        , iIRFilter(dsp::IIR::Coefficients<float>::makeLowPass(44100, 20000.0f, 0.1f))
 
 #endif
 {
     lastSampleRate = 44100;
-    NormalisableRange<float> cutoffRange (20.0f, 20000.0f);
-    NormalisableRange<float> resRange (1.0f, 5.0f);
-    //tree.createAndAddParameter("cutoff", "Cutoff", "cutoff", cutoffRange, 600.0f, nullptr, nullptr);
-    //tree.createAndAddParameter("resonance", "Resonance", "resonance", resRange, 1.0f, nullptr, nullptr);
+    addParameter(mFilterTypeParameter = new AudioParameterInt("filterType",
+                                                            "FilterType",
+                                                            0,
+                                                            1,
+                                                            0));
     addParameter(mFilterCutoffParameter = new AudioParameterFloat("cutoff",
                                                             "Cutoff",
                                                             20.0f, // begin
@@ -47,16 +49,8 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
-    addParameter(mReverbWidthParameter = new AudioParameterFloat("widthReverb",
-                                                            "WidthReverb",
-                                                            0.0f,
-                                                            1.0f,
-                                                            0.0f));
-    addParameter(mFilterTypeParameter = new AudioParameterInt("filterType",
-                                                            "FilterType",
-                                                            0,
-                                                            1,
-                                                            0));
+
+    //TanenLiveV0AudioProcessor::runTest();
 }
 
 TanenLiveV0AudioProcessor::~TanenLiveV0AudioProcessor()
@@ -125,24 +119,21 @@ void TanenLiveV0AudioProcessor::changeProgramName (int index, const String& newN
 {
 }
 
+
+
 //==============================================================================
 void TanenLiveV0AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
     dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
     
-    lowPassFilter.prepare(spec);
-    lowPassFilter.reset();
+    iIRFilter.prepare(spec);
+    iIRFilter.reset();
     
     fxReverbChain.prepare(spec);
-    
-    // Reverb
-    
-    
+        
 }
 
 void TanenLiveV0AudioProcessor::releaseResources()
@@ -169,18 +160,33 @@ bool TanenLiveV0AudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 #endif
 
 void TanenLiveV0AudioProcessor::updateFilter() {
-    //float freq = *tree.getRawParameterValue("cutoff");
     float freq = *mFilterCutoffParameter;
-    //float res = *tree.getRawParameterValue("resonance");
     float res = *mFilterResonanceParameter;
     /** LOWPASS */
     if (*mFilterTypeParameter == 0) {
-        *lowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
+        *iIRFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
     /** HIPASS */
     } else {
-        // TODO Adjust value to 0 when hi pass selected ? Put a logaritmic scale on the button to be precise on the bass.
-        *lowPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, freq, res);
+        *iIRFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, freq, res);
     }
+}
+
+void TanenLiveV0AudioProcessor::updateReverb() {
+    const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
+    juce::Reverb::Parameters reverbParametersVar;
+    reverbParametersVar.dryLevel = 1.0f;
+    reverbParametersVar = reverbParameters;
+    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
+    reverbParametersVar.wetLevel = *mReverbDryWetParameter;
+    // Make it a large stereo reverb
+    reverbParametersVar.width = 1.0f;
+    fxReverbChain.getProcessor().setParameters(reverbParametersVar);
+    // DEBUG
+    std::cout << "roomSize : ";
+    std::cout << reverbParameters.roomSize;
+    std::cout << "\n dryLevel : ";
+    std::cout << reverbParameters.dryLevel;
+    std::cout << "\n \n";
 }
 
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -192,36 +198,17 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    // FILTER UPDATE
     dsp::AudioBlock<float> block (buffer); // [4]
     lastSampleRate = getSampleRate();
     updateFilter();
-    lowPassFilter.process(dsp::ProcessContextReplacing<float> (block));
+    iIRFilter.process(dsp::ProcessContextReplacing<float> (block));
 
-    //TODO add OnOff or 0-100 button to control the dry/wet reverb.
-    auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples()); // [5]
-    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);      // [6]
-    //TODO get reverb parameters
-    const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
-    std::cout << "roomSize : ";
-    std::cout << reverbParameters.roomSize;
-    std::cout << "\n dryLevel : ";
-    std::cout << reverbParameters.dryLevel;
-    std::cout << "\n \n";
-    //juce::Reverb::Parameters& newParams = &reverbParameters;
-    //reverbParameters.Parameters::dryLevel = 1.0f;
-    //reverbParameters.roomSize = 1.0f;
-    // Process the sound with the reverb (?)
-    fxReverbChain.process(contextToUse);                                                  // [7]
-    juce::Reverb::Parameters reverbParametersVar;
-//    reverbParametersVar.dryLevel = reverbParameters.dryLevel;
-    reverbParametersVar.dryLevel = 1.0f;
-    reverbParametersVar = reverbParameters;
-    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
-    reverbParametersVar.wetLevel = *mReverbDryWetParameter;
-    reverbParametersVar.width = *mReverbWidthParameter; // WIDTH doesn't goes down again
-    reverbParametersVar.damping = 1.0f; // TO TEST: not much difference between 0 and 1
-    
-    fxReverbChain.getProcessor().setParameters(reverbParametersVar);
+    // REVERB UPDATE
+    auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples());
+    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
+    fxReverbChain.process(contextToUse);
+    updateReverb();
     
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -261,4 +248,116 @@ void TanenLiveV0AudioProcessor::setStateInformation (const void* data, int sizeI
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new TanenLiveV0AudioProcessor();
+}
+
+#define BEGIN_NAMESPACE(n) namespace n {
+#define END_NAMESPACE }
+
+BEGIN_NAMESPACE(UnitTestValidator)
+
+struct PlayedFret
+{
+    int string = -1;
+    int fret = -1;
+    bool operator == (const PlayedFret& other) const;
+};
+
+bool PlayedFret::operator==(const PlayedFret &other) const
+{
+    std::cout << "this: {" << string << ", " << fret << "} ";
+    std::cout << "other: {" << other.string << ", " << other.fret << "} ";
+    std::cout << std::endl;
+    return string == other.string && fret == other.fret;
+}
+
+struct Fretboard
+{
+    using Solution = std::vector< PlayedFret >;
+    using SolutionSet = std::vector< Solution >;
+    
+    static SolutionSet Make(std::vector<int> tuning,
+                             std::vector<int> input);
+};
+
+Fretboard::SolutionSet Fretboard::Make(std::vector<int> tuning,
+                                       std::vector<int> input)
+{
+    return
+    {
+        std::vector< PlayedFret >
+        {
+            PlayedFret{0, 0},
+            PlayedFret{1, 2},
+            PlayedFret{2, 2},
+            PlayedFret{3, 1},
+            PlayedFret{4, 0},
+            PlayedFret{5, 0},
+        }
+    };
+}
+
+struct FretboardValidator
+{
+    FretboardValidator(std::vector<int> t,
+                             std::vector<int> i) :
+    tuning(t), inputToCheck(i)
+    {
+        solutions = Fretboard::Make(tuning, inputToCheck);
+    }
+    FretboardValidator& with(const PlayedFret& pr)
+    {
+        if ( isValid /* && some check */)
+            return *this;
+        std::cout << "not found in solution " << std::endl;
+        jassertfalse;
+        isValid = false;
+        return *this;
+    }
+    operator bool() const { return isValid; }
+private:
+    bool isValid = true;
+    std::vector<int> tuning;
+    std::vector<int> inputToCheck;
+    Fretboard::SolutionSet solutions;
+    bool verify(const PlayedFret& pf);
+};
+
+bool FretboardValidator::verify(const PlayedFret &pf)
+{
+    for (const auto& fretboard : solutions)
+    {
+        for(const auto& playedFret : fretboard)
+        {
+            if(pf == playedFret)
+                return  true;
+        }
+    }
+    return false;
+}
+
+bool expect(bool expression)
+{
+    if (expression)
+    {
+        std::cout << "good to go!" << std::endl;
+        return true;
+    }
+    std::cout << "failed test!!" << std::endl;
+    return false;
+}
+
+END_NAMESPACE
+
+void TanenLiveV0AudioProcessor::runTest()
+{
+    UnitTestValidator::FretboardValidator candidate(
+    {40, 45, 50, 55, 59, 64},
+    {50, 55});
+    
+    UnitTestValidator::expect(candidate
+                              .with({3, 1})
+                              .with({2, 2}));
+    
+    //jassertfalse;
+    
 }

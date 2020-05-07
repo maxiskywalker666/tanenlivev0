@@ -136,43 +136,23 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TanenLiveV0AudioProcessor& processor;
-
     ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
     // TANEN LIVE General Parameters
-    TextButton byPassButton{"BYPASS"}, b2{"2"}, b3{"3"};
     // FILTER Parameters
-    Slider mFilterCutoffSlider; // OK - log scale to do
-    Label frequencyLabel;
-    Slider mFilterResSlider; // OK
-    Label resonanceLabel;
-    ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterCutoffValue;
-    ScopedPointer<AudioProcessorValueTreeState::SliderAttachment> mFilterResValue;
-    
-    Slider mFilterAttackSlider;
-    Slider mFilterDecaySlider;
-    Slider mFilterSustainSlider;
-    Slider mFilterReleaseSlider;
-    ComboBox mFilterType; // OK
-    // DELAY Parameters
-    Slider mDelayDryWetSlider;
-    Slider mDelayPitchSlider;
-    Slider mDelayTimeSlider;
-    Slider mDelayFeedbackSlider;
-    ComboBox mReverseTimeType;
+    Slider mFilterCutoffSlider;
+    Label mFilterCutoffLabel;
+    Slider mFilterResSlider;
+    Label mFilterResLabel;
+    ComboBox mFilterType;
+    //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
-    Slider mReverbDryWetSlider; // OK
-    Slider mReverbPitchSlider;
-    Slider mReverbRoomSizeSlider; // OK
-    Slider mReverbWidthSlider; // OK - bug to fix
-    // TANEN LIVE SEND Parameters
-    Slider mSendLiveSlider;
-    ComboBox mReverbSendType;
-    ComboBox mDelaySendType;
-    // If mDelayTimeSendType is ON the DelayTimeSlider value is applied to the value 0 of mSendLiveSlider.
-    ComboBox mDelayTimeSendType;
-    //TODO LFO Parameters
+    Slider mReverbDryWetSlider;
+    Label mReverbDryWetLabel;
+    Slider mReverbRoomSizeSlider;
+    Label mReverbRoomSizeLabel;
+    TextButton reverbSendButton{"SEND"};
         
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

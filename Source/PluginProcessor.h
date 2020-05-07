@@ -10,7 +10,8 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../JuceLibraryCode/JuceHeader.h" // include juce_core that include juce_UniTest
+// #include "/Applications/JUCE/modules/juce_core/unit_tests/juce_UnitTest.h"
 
 //==============================================================================
 /**
@@ -56,7 +57,9 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void updateFilter();
+    void updateReverb();
     //AudioProcessorValueTreeState tree;
+    static void runTest();
 
 private:
     // FILTER PARAMETERS
@@ -66,10 +69,9 @@ private:
     // REVERB PARAMETERS
     AudioParameterFloat* mReverbDryWetParameter;
     AudioParameterFloat* mReverbRoomSizeParameter;
-    AudioParameterFloat* mReverbWidthParameter;
     
     float lastSampleRate;
-    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> lowPassFilter;
+    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     enum
     {
         reverbIndex             // [2]
