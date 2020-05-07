@@ -58,6 +58,9 @@ public:
     
     void updateFilter();
     void updateReverb();
+    
+    //void buttonClicked(Button* button) override;
+    void sendFx();
     //AudioProcessorValueTreeState tree;
     static void runTest();
 
@@ -67,8 +70,10 @@ private:
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
     // REVERB PARAMETERS
-    AudioParameterFloat* mReverbDryWetParameter;
+    AudioParameterFloat* mReverbWetParameter;
     AudioParameterFloat* mReverbRoomSizeParameter;
+    // SEND PARAMETERS
+    AudioParameterBool* mCutoffSendParameter;
     
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;

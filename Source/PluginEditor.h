@@ -172,11 +172,12 @@ private:
     TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
-    Slider mReverbDryWetSlider;
-    Label mReverbDryWetLabel;
+    Slider mReverbWetSlider;
+    Label mReverbWetLabel;
     Slider mReverbRoomSizeSlider;
     Label mReverbRoomSizeLabel;
-    TextButton reverbDryWetSendButton{"BYPASSED"};
+    Slider mDrySlider; // horizontale slider in the header
+    TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
     TextButton delaySendButton{"BYPASSED"};

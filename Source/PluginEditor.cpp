@@ -42,8 +42,8 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(resSendButton);
     //reverbDryWetSendButton.setLookAndFeel(&sendLook);
-    reverbDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
-    addAndMakeVisible(reverbDryWetSendButton);
+    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    addAndMakeVisible(reverbWetSendButton);
     //reverbSizeSendButton.setLookAndFeel(&sendLook);
     reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(reverbSizeSendButton);
@@ -102,17 +102,17 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     
     // REVERB DRYWET
     AudioParameterFloat* reverbDryWetParameter = (AudioParameterFloat*)params.getUnchecked(3);
-    mReverbDryWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
-    mReverbDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    mReverbDryWetSlider.setValue(*reverbDryWetParameter);
-    mReverbDryWetSlider.setLookAndFeel(&reverbLook);
-    addAndMakeVisible(mReverbDryWetSlider);
+    mReverbWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
+    mReverbWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mReverbWetSlider.setValue(*reverbDryWetParameter);
+    mReverbWetSlider.setLookAndFeel(&reverbLook);
+    addAndMakeVisible(mReverbWetSlider);
     
-    mReverbDryWetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-    mReverbDryWetSlider.onValueChange = [this, reverbDryWetParameter] { *reverbDryWetParameter = mReverbDryWetSlider.getValue(); };
-    mReverbDryWetSlider.onDragStart = [reverbDryWetParameter] { reverbDryWetParameter->beginChangeGesture(); };
-    mReverbDryWetSlider.onDragEnd = [reverbDryWetParameter] { reverbDryWetParameter->endChangeGesture(); };
-    mReverbDryWetLabel.setText("DRY/WET", dontSendNotification);
+    mReverbWetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mReverbWetSlider.onValueChange = [this, reverbDryWetParameter] { *reverbDryWetParameter = mReverbWetSlider.getValue(); };
+    mReverbWetSlider.onDragStart = [reverbDryWetParameter] { reverbDryWetParameter->beginChangeGesture(); };
+    mReverbWetSlider.onDragEnd = [reverbDryWetParameter] { reverbDryWetParameter->endChangeGesture(); };
+    mReverbWetLabel.setText("WET", dontSendNotification);
     
     // REVERB ROOMSIZE
     AudioParameterFloat* reverbRoomSizeParameter = (AudioParameterFloat*)params.getUnchecked(4);
@@ -141,7 +141,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     };
     resSendButton.setToggleState(false, NotificationType::dontSendNotification);
     resSendButton.addListener(this);
-    reverbDryWetSendButton.addListener(this);
+    reverbWetSendButton.addListener(this);
     reverbSizeSendButton.addListener(this);
     delaySendButton.addListener(this);
 }
@@ -151,13 +151,21 @@ TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 }
 
 void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
+    auto& params = processor.getParameters();
+    if (button == &cutoffSendButton) {
+        AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(5);
+        *cutoffSendParameter = true;
+    }
     button->setToggleState(true, NotificationType::dontSendNotification);
-    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::red);
     button->setButtonText("SENDING");
 }
 void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
+    auto& params = processor.getParameters();
+    if (button == &cutoffSendButton) {
+        AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(5);
+        *cutoffSendParameter = false;
+    }
     button->setToggleState(false, NotificationType::dontSendNotification);
-    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::grey);
     button->setButtonText("BYPASSED");
 }
 
@@ -170,6 +178,11 @@ void TanenLiveV0AudioProcessorEditor::buttonClicked(Button* button) {
     }
   
 }
+
+/*void TanenLiveV0AudioProcessorEditor::clicked() {
+    std::cout << "coucou clicked()";
+    
+}*/
 
 //==============================================================================
 void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
@@ -239,13 +252,13 @@ void TanenLiveV0AudioProcessorEditor::resized()
     //mReverbRoomSizeSlider.setBounds(reverbZone.removeFromTop(itemSize+itemMargin).reduced(itemMargin));
     // drywet slider
     auto dryWetZone = reverbZone.removeFromTop(itemSize);
-    mReverbDryWetSlider.setBounds(dryWetZone.reduced(itemMargin));
+    mReverbWetSlider.setBounds(dryWetZone.reduced(itemMargin));
     // drywet label
-    addAndMakeVisible(mReverbDryWetLabel);
-    mReverbDryWetLabel.setJustificationType(Justification::centred);
-    mReverbDryWetLabel.setBounds(dryWetZone.removeFromBottom(labelMargin));
+    addAndMakeVisible(mReverbWetLabel);
+    mReverbWetLabel.setJustificationType(Justification::centred);
+    mReverbWetLabel.setBounds(dryWetZone.removeFromBottom(labelMargin));
     // drywet send button
-    reverbDryWetSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
+    reverbWetSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     // size slider
     auto sizeZone = reverbZone.removeFromTop(itemSize);
     mReverbRoomSizeSlider.setBounds(sizeZone.reduced(itemMargin));

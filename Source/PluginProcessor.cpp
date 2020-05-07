@@ -39,8 +39,8 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             1.0f,
                                                             5.0f,
                                                             1.0f));
-    addParameter(mReverbDryWetParameter = new AudioParameterFloat("dryWetReverb",
-                                                            "DryWetReverb",
+    addParameter(mReverbWetParameter = new AudioParameterFloat("wetReverb",
+                                                            "WetReverb",
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
@@ -49,6 +49,9 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
+    addParameter(mCutoffSendParameter = new AudioParameterBool("cutoffSend",
+                                                               "CutoffSend",
+                                                               false));
 
     //TanenLiveV0AudioProcessor::runTest();
 }
@@ -159,6 +162,10 @@ bool TanenLiveV0AudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 }
 #endif
 
+/*void TanenLiveV0AudioProcessor::buttonClicked(Button* button) {
+    
+}*/
+
 void TanenLiveV0AudioProcessor::updateFilter() {
     float freq = *mFilterCutoffParameter;
     float res = *mFilterResonanceParameter;
@@ -174,19 +181,28 @@ void TanenLiveV0AudioProcessor::updateFilter() {
 void TanenLiveV0AudioProcessor::updateReverb() {
     const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
     juce::Reverb::Parameters reverbParametersVar;
-    reverbParametersVar.dryLevel = 1.0f;
     reverbParametersVar = reverbParameters;
+    reverbParametersVar.dryLevel = 1.0f; // marche pas
     reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
-    reverbParametersVar.wetLevel = *mReverbDryWetParameter;
+    reverbParametersVar.wetLevel = *mReverbWetParameter;
     // Make it a large stereo reverb
     reverbParametersVar.width = 1.0f;
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
     // DEBUG
-    std::cout << "roomSize : ";
+    std::cout << "\n roomSize : ";
     std::cout << reverbParameters.roomSize;
     std::cout << "\n dryLevel : ";
-    std::cout << reverbParameters.dryLevel;
+    std::cout << reverbParametersVar.dryLevel;
+    std::cout << "\n wetLevel : ";
+    std::cout << reverbParameters.wetLevel;
     std::cout << "\n \n";
+}
+
+void TanenLiveV0AudioProcessor::sendFx() {
+    // tester cette valeur du booléen
+    // DEBUG
+    std::cout << "\n cutoffSend : ";
+    std::cout << *mCutoffSendParameter;
 }
 
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -210,6 +226,7 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     fxReverbChain.process(contextToUse);
     updateReverb();
     
+    sendFx();
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
@@ -250,6 +267,50 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new TanenLiveV0AudioProcessor();
 }
 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #define BEGIN_NAMESPACE(n) namespace n {
 #define END_NAMESPACE }
 
