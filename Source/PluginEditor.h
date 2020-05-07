@@ -131,7 +131,9 @@ public:
 
 /**
 */
-class TanenLiveV0AudioProcessorEditor  : public AudioProcessorEditor
+class TanenLiveV0AudioProcessorEditor  : public AudioProcessorEditor,
+                                         public Button::Listener
+
 {
 public:
     TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor&);
@@ -140,6 +142,11 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+    void sendFx();
+    void bypassFx();
+    void sendResFx();
+    void bypassResFx();
+    void buttonClicked(Button* button) override;
 
 private:
     // ZONES
@@ -163,18 +170,18 @@ private:
     Slider mFilterResSlider;
     Label mFilterResLabel;
     ComboBox mFilterType;
-    TextButton cutoffSendButton{"SEND"};
-    TextButton resSendButton{"SEND"};
+    TextButton cutoffSendButton{"BYPASSED"};
+    TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
     Slider mReverbDryWetSlider;
     Label mReverbDryWetLabel;
     Slider mReverbRoomSizeSlider;
     Label mReverbRoomSizeLabel;
-    TextButton reverbDryWetSendButton{"SEND"};
-    TextButton reverbSizeSendButton{"SEND"};
+    TextButton reverbDryWetSendButton{"BYPASSED"};
+    TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
-    TextButton delaySendButton{"SEND"};
+    TextButton delaySendButton{"BYPASSED"};
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

@@ -35,9 +35,11 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     setSize (600, 450);
     
     // SEND BUTTON
-    cutoffSendButton.setLookAndFeel(&sendLook);
+    //cutoffSendButton.setLookAndFeel(&sendLook);
+    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(cutoffSendButton);
-    resSendButton.setLookAndFeel(&sendLook);
+    //resSendButton.setLookAndFeel(&sendLook);
+    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
     addAndMakeVisible(resSendButton);
     reverbDryWetSendButton.setLookAndFeel(&sendLook);
     addAndMakeVisible(reverbDryWetSendButton);
@@ -45,7 +47,6 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(reverbSizeSendButton);
     delaySendButton.setLookAndFeel(&sendLook);
     addAndMakeVisible(delaySendButton);
-    
     
     auto& params = processor.getParameters();
     // COMBOBOX FILTER TYPE
@@ -124,11 +125,54 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbRoomSizeSlider.onDragEnd = [reverbRoomSizeParameter] { reverbRoomSizeParameter->endChangeGesture(); };
     mReverbRoomSizeLabel.setText("SIZE", dontSendNotification);
 
-    
+    // SEND BUTTON EVENTS
+    //AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(5);
+    cutoffSendButton.setToggleState(false, NotificationType::dontSendNotification);
+    cutoffSendButton.addListener(this);
+    resSendButton.setToggleState(false, NotificationType::dontSendNotification);
+    resSendButton.addListener(this);
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 {
+}
+
+void TanenLiveV0AudioProcessorEditor::sendFx() {
+    cutoffSendButton.setToggleState(true, NotificationType::dontSendNotification);
+    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::red);
+    cutoffSendButton.setButtonText("SENDING");
+}
+void TanenLiveV0AudioProcessorEditor::bypassFx() {
+    cutoffSendButton.setToggleState(false, NotificationType::dontSendNotification);
+    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::grey);
+    cutoffSendButton.setButtonText("BYPASSED");
+}
+void TanenLiveV0AudioProcessorEditor::sendResFx() {
+    resSendButton.setToggleState(true, NotificationType::dontSendNotification);
+    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::red);
+    resSendButton.setButtonText("SENDING");
+}
+void TanenLiveV0AudioProcessorEditor::bypassResFx() {
+    resSendButton.setToggleState(false, NotificationType::dontSendNotification);
+    //cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, Colours::grey);
+    resSendButton.setButtonText("BYPASSED");
+}
+
+void TanenLiveV0AudioProcessorEditor::buttonClicked(Button* button) {
+    // WHAT TO DO AVEC BUTTON CLICKED
+    if (button == &cutoffSendButton) {
+        if (cutoffSendButton.getToggleStateValue().getValue()) {
+            cutoffSendButton.onClick =[this]() { bypassFx(); };
+        } else {
+            cutoffSendButton.onClick =[this]() { sendFx(); };
+        }
+    } else if (button == &resSendButton) {
+        if (resSendButton.getToggleStateValue().getValue()) {
+            resSendButton.onClick =[this]() { bypassResFx(); };
+        } else {
+            resSendButton.onClick =[this]() { sendResFx(); };
+        }
+    }
 }
 
 //==============================================================================
@@ -222,7 +266,5 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // PERFORMANCE
     mImageComponent.setBounds(performanceZone.reduced(imageMargin));
 
-
-    
 }
 
