@@ -133,6 +133,13 @@ public:
     void resized() override;
 
 private:
+    // ZONES
+    TextButton headerFrame;
+    TextButton footerFrame;
+    TextButton filterFrame;
+    TextButton reverbFrame;
+    TextButton delayFrame;
+    TextButton performanceFrame;
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TanenLiveV0AudioProcessor& processor;

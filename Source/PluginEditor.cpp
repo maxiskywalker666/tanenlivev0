@@ -17,6 +17,12 @@
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    addAndMakeVisible(headerFrame);
+    addAndMakeVisible(footerFrame);
+    addAndMakeVisible(filterFrame);
+    addAndMakeVisible(reverbFrame);
+    addAndMakeVisible(delayFrame);
+    addAndMakeVisible(performanceFrame);
     // IMAGE
     auto t1000Image = ImageCache::getFromMemory(BinaryData::T1000_png, BinaryData::T1000_pngSize);
     if (!t1000Image.isNull())
@@ -27,7 +33,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mImageComponent.setBounds(280, 10, 220, 240);
     
     // WINDOW SIZE
-    setSize (500, 450);
+    setSize (500, 500);
     
     // BYPASS BUTTON
     reverbSendButton.setLookAndFeel(&reverbLook);
@@ -88,7 +94,6 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     // REVERB DRYWET
     AudioParameterFloat* reverbDryWetParameter = (AudioParameterFloat*)params.getUnchecked(3);
     mReverbDryWetSlider.setRange(reverbDryWetParameter->range.start, reverbDryWetParameter->range.end);
-    mReverbDryWetSlider.setBounds(110, 30, 100, 100);
     mReverbDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbDryWetSlider.setValue(*reverbDryWetParameter);
     mReverbDryWetSlider.setLookAndFeel(&reverbLook);
@@ -99,7 +104,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbDryWetSlider.onDragStart = [reverbDryWetParameter] { reverbDryWetParameter->beginChangeGesture(); };
     mReverbDryWetSlider.onDragEnd = [reverbDryWetParameter] { reverbDryWetParameter->endChangeGesture(); };
     mReverbDryWetLabel.setText ("DRY/WET", dontSendNotification);
-    mReverbDryWetLabel.attachToComponent (&mReverbDryWetSlider, false);
+    //mReverbDryWetLabel.attachToComponent (&mReverbDryWetSlider, false);
     
     // REVERB ROOMSIZE
     AudioParameterFloat* reverbRoomSizeParameter = (AudioParameterFloat*)params.getUnchecked(4);
@@ -108,7 +113,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbRoomSizeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mReverbRoomSizeSlider.setValue(*reverbRoomSizeParameter);
     mReverbRoomSizeSlider.setLookAndFeel(&reverbLook);
-    addAndMakeVisible(mReverbRoomSizeSlider);
+    //addAndMakeVisible(mReverbRoomSizeSlider);
     
     mReverbRoomSizeSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mReverbRoomSizeSlider.onValueChange = [this, reverbRoomSizeParameter] { *reverbRoomSizeParameter = mReverbRoomSizeSlider.getValue(); };
@@ -132,7 +137,39 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 
 void TanenLiveV0AudioProcessorEditor::resized()
 {
+    //setSize (500, 500);
+    auto area = getLocalBounds();
+ 
+    auto headerHeight = 40;
+    auto footerHeight = 60;
+    auto header = area.removeFromTop(headerHeight);
+    auto footer = area.removeFromBottom(footerHeight);
+ 
+    auto fxWidth = 120; // height = 500 - (20+30) = 450
+    auto filterZone = area.removeFromLeft (fxWidth);
+    auto reverbZone = area.removeFromLeft (fxWidth);
+    auto delayZone = area.removeFromLeft (fxWidth);
+    auto performanceZone = area; // width = 500 - 3*(120) = 140
+    
+    // DRAW FRAMES
+    headerFrame.setBounds(header);
+    footerFrame.setBounds(footer);
+    filterFrame.setBounds(filterZone);
+    reverbFrame.setBounds(reverbZone);
+    delayFrame.setBounds(delayZone);
+    performanceFrame.setBounds(performanceZone);
+    // zone in zone :
+    auto ItemMargin = 15;
+    // sideItemA.setBounds (sideBarArea.removeFromTop (sideItemHeight).reduced (sideItemMargin));
+    
     mImageComponent.setBounds(280, 10, 220, 240);
     reverbSendButton.setBounds(110, 380, 100, 30);
+    
+    // REVERB
+    //mReverbDryWetSlider.setBounds(110, 30, 100, 100);
+    mReverbDryWetSlider.setBounds(reverbZone.reduced(ItemMargin));
+    mReverbDryWetLabel.attachToComponent (&mReverbDryWetSlider, false);
+
+    
 }
 
