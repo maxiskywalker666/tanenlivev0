@@ -32,7 +32,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mImageComponent);
     
     // WINDOW SIZE
-    setSize (600, 400);
+    setSize (600, 420);
     
     // SEND BUTTON
     filterSendButton.setLookAndFeel(&sendLook);
@@ -138,7 +138,7 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 
 void TanenLiveV0AudioProcessorEditor::resized()
 {
-    //setSize (600, 500);
+    //setSize (600 width, 420 height);
     auto area = getLocalBounds();
  
     auto headerHeight = 40;
@@ -146,7 +146,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     auto header = area.removeFromTop(headerHeight);
     auto footer = area.removeFromBottom(footerHeight);
  
-    auto fxWidth = 120; // height = 500 - (20+30) = 450
+    auto fxWidth = 120; // height = 450 - (40+60) = 350
     auto filterZone = area.removeFromLeft (fxWidth);
     auto reverbZone = area.removeFromLeft (fxWidth);
     auto delayZone = area.removeFromLeft (fxWidth);
@@ -163,27 +163,57 @@ void TanenLiveV0AudioProcessorEditor::resized()
     auto itemMargin = 15;
     auto imageMargin = 5;
     auto headerMargin = 3;
-    auto itemSize = 150;
+    auto itemSize = 125;
     auto sendSize = 50;
     auto sendMargin = 10;
+    auto labelMargin = 15;
     
-    mImageComponent.setBounds(performanceZone.reduced(imageMargin));
-    filterSendButton.setBounds(filterZone.removeFromBottom(sendSize).reduced(sendMargin));
-    reverbSendButton.setBounds(reverbZone.removeFromBottom(sendSize).reduced(sendMargin));
-    delaySendButton.setBounds(delayZone.removeFromBottom(sendSize).reduced(sendMargin));
-
     // FILTER
     mFilterType.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
-    mFilterCutoffSlider.setBounds(filterZone.removeFromTop(itemSize).reduced(itemMargin));
-    //mFilterCutoffLabel.attachToComponent (&mFilterCutoffSlider, false);
-    mFilterResSlider.setBounds(filterZone.removeFromTop(itemSize+itemMargin).reduced(itemMargin));
-    //mFilterResLabel.attachToComponent (&mFilterResSlider, false);
+    // cutoff slider
+    auto cutoffZone = filterZone.removeFromTop(itemSize);
+    mFilterCutoffSlider.setBounds(cutoffZone.reduced(itemMargin));
+    // cutoff label
+    addAndMakeVisible(mFilterCutoffLabel);
+    mFilterCutoffLabel.setJustificationType(Justification::centred);
+    mFilterCutoffLabel.setBounds(cutoffZone.removeFromBottom(labelMargin));
+    // res slider
+    auto resZone = filterZone.removeFromTop(itemSize);
+    mFilterResSlider.setBounds(resZone.reduced(itemMargin));
+    // res label
+    addAndMakeVisible(mFilterResLabel);
+    mFilterResLabel.setJustificationType(Justification::centred);
+    mFilterResLabel.setBounds(resZone.removeFromBottom(labelMargin));
+    // send button
+    filterSendButton.setBounds(filterZone.removeFromBottom(sendSize).reduced(sendMargin));
+
     
     // REVERB
-    mReverbDryWetSlider.setBounds(reverbZone.removeFromTop(itemSize).reduced(itemMargin));
-    //mReverbDryWetLabel.attachToComponent (&mReverbDryWetSlider, false);
-    mReverbRoomSizeSlider.setBounds(reverbZone.removeFromTop(itemSize+itemMargin).reduced(itemMargin));
-    //mReverbRoomSizeLabel.attachToComponent (&mReverbRoomSizeSlider, false);
+    //mReverbDryWetSlider.setBounds(reverbZone.removeFromTop(itemSize).reduced(itemMargin));
+    //mReverbRoomSizeSlider.setBounds(reverbZone.removeFromTop(itemSize+itemMargin).reduced(itemMargin));
+    // drywet slider
+    auto dryWetZone = reverbZone.removeFromTop(itemSize);
+    mReverbDryWetSlider.setBounds(dryWetZone.reduced(itemMargin));
+    // drywet label
+    addAndMakeVisible(mReverbDryWetLabel);
+    mReverbDryWetLabel.setJustificationType(Justification::centred);
+    mReverbDryWetLabel.setBounds(dryWetZone.removeFromBottom(labelMargin));
+    // size slider
+    auto sizeZone = reverbZone.removeFromTop(itemSize);
+    mReverbRoomSizeSlider.setBounds(sizeZone.reduced(itemMargin));
+    // size label
+    addAndMakeVisible(mReverbRoomSizeLabel);
+    mReverbRoomSizeLabel.setJustificationType(Justification::centred);
+    mReverbRoomSizeLabel.setBounds(sizeZone.removeFromBottom(labelMargin));
+    // send button
+    reverbSendButton.setBounds(reverbZone.removeFromBottom(sendSize).reduced(sendMargin));
+    
+    // DELAY
+    delaySendButton.setBounds(delayZone.removeFromBottom(sendSize).reduced(sendMargin));
+
+    // PERFORMANCE
+    mImageComponent.setBounds(performanceZone.reduced(imageMargin));
+
 
     
 }
