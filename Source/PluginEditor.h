@@ -79,6 +79,15 @@ public:
             g.setColour (Colours::black);
             g.fillPath (p);
         }
+};
+
+class SendLookAndFeel : public LookAndFeel_V4
+{
+public:
+    SendLookAndFeel(){}
+    ~SendLookAndFeel(){
+        
+    }
     void drawButtonBackground (Graphics& g, Button& button, const Colour& backgroundColour, bool isMouseOverButton, bool isButtonDown) override
         {
             auto buttonArea = button.getLocalBounds();
@@ -146,6 +155,7 @@ private:
     ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
+    SendLookAndFeel sendLook;
     // TANEN LIVE General Parameters
     // FILTER Parameters
     Slider mFilterCutoffSlider;
@@ -153,6 +163,7 @@ private:
     Slider mFilterResSlider;
     Label mFilterResLabel;
     ComboBox mFilterType;
+    TextButton filterSendButton{"SEND"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
     Slider mReverbDryWetSlider;
@@ -160,6 +171,8 @@ private:
     Slider mReverbRoomSizeSlider;
     Label mReverbRoomSizeLabel;
     TextButton reverbSendButton{"SEND"};
-        
+    // DELAY Parameters
+    TextButton delaySendButton{"SEND"};
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };
