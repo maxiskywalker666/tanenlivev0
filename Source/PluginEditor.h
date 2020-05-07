@@ -163,14 +163,16 @@ private:
     Slider mFilterResSlider;
     Label mFilterResLabel;
     ComboBox mFilterType;
-    TextButton filterSendButton{"SEND"};
+    TextButton cutoffSendButton{"SEND"};
+    TextButton resSendButton{"SEND"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
     Slider mReverbDryWetSlider;
     Label mReverbDryWetLabel;
     Slider mReverbRoomSizeSlider;
     Label mReverbRoomSizeLabel;
-    TextButton reverbSendButton{"SEND"};
+    TextButton reverbDryWetSendButton{"SEND"};
+    TextButton reverbSizeSendButton{"SEND"};
     // DELAY Parameters
     TextButton delaySendButton{"SEND"};
     

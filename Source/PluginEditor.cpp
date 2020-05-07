@@ -32,13 +32,17 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mImageComponent);
     
     // WINDOW SIZE
-    setSize (600, 420);
+    setSize (600, 450);
     
     // SEND BUTTON
-    filterSendButton.setLookAndFeel(&sendLook);
-    addAndMakeVisible(filterSendButton);
-    reverbSendButton.setLookAndFeel(&sendLook);
-    addAndMakeVisible(reverbSendButton);
+    cutoffSendButton.setLookAndFeel(&sendLook);
+    addAndMakeVisible(cutoffSendButton);
+    resSendButton.setLookAndFeel(&sendLook);
+    addAndMakeVisible(resSendButton);
+    reverbDryWetSendButton.setLookAndFeel(&sendLook);
+    addAndMakeVisible(reverbDryWetSendButton);
+    reverbSizeSendButton.setLookAndFeel(&sendLook);
+    addAndMakeVisible(reverbSizeSendButton);
     delaySendButton.setLookAndFeel(&sendLook);
     addAndMakeVisible(delaySendButton);
     
@@ -138,7 +142,7 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 
 void TanenLiveV0AudioProcessorEditor::resized()
 {
-    //setSize (600 width, 420 height);
+    //setSize (600 width, 450 height);
     auto area = getLocalBounds();
  
     auto headerHeight = 40;
@@ -177,6 +181,8 @@ void TanenLiveV0AudioProcessorEditor::resized()
     addAndMakeVisible(mFilterCutoffLabel);
     mFilterCutoffLabel.setJustificationType(Justification::centred);
     mFilterCutoffLabel.setBounds(cutoffZone.removeFromBottom(labelMargin));
+    // cutoff send button
+    cutoffSendButton.setBounds(filterZone.removeFromTop(sendSize).reduced(sendMargin));
     // res slider
     auto resZone = filterZone.removeFromTop(itemSize);
     mFilterResSlider.setBounds(resZone.reduced(itemMargin));
@@ -184,8 +190,8 @@ void TanenLiveV0AudioProcessorEditor::resized()
     addAndMakeVisible(mFilterResLabel);
     mFilterResLabel.setJustificationType(Justification::centred);
     mFilterResLabel.setBounds(resZone.removeFromBottom(labelMargin));
-    // send button
-    filterSendButton.setBounds(filterZone.removeFromBottom(sendSize).reduced(sendMargin));
+    // res send button
+    resSendButton.setBounds(filterZone.removeFromTop(sendSize).reduced(sendMargin));
 
     
     // REVERB
@@ -198,6 +204,8 @@ void TanenLiveV0AudioProcessorEditor::resized()
     addAndMakeVisible(mReverbDryWetLabel);
     mReverbDryWetLabel.setJustificationType(Justification::centred);
     mReverbDryWetLabel.setBounds(dryWetZone.removeFromBottom(labelMargin));
+    // drywet send button
+    reverbDryWetSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     // size slider
     auto sizeZone = reverbZone.removeFromTop(itemSize);
     mReverbRoomSizeSlider.setBounds(sizeZone.reduced(itemMargin));
@@ -205,8 +213,8 @@ void TanenLiveV0AudioProcessorEditor::resized()
     addAndMakeVisible(mReverbRoomSizeLabel);
     mReverbRoomSizeLabel.setJustificationType(Justification::centred);
     mReverbRoomSizeLabel.setBounds(sizeZone.removeFromBottom(labelMargin));
-    // send button
-    reverbSendButton.setBounds(reverbZone.removeFromBottom(sendSize).reduced(sendMargin));
+    // size send button
+    reverbSizeSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     
     // DELAY
     delaySendButton.setBounds(delayZone.removeFromBottom(sendSize).reduced(sendMargin));
