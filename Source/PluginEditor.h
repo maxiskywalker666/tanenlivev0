@@ -182,6 +182,8 @@ private:
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
     TextButton delaySendButton{"BYPASSED"};
+    // PERFORMANCE Parameters
+    Slider mPerfSlider;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

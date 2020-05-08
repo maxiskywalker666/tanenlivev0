@@ -58,10 +58,8 @@ public:
     
     void updateFilter();
     void updateReverb();
-    
-    //void buttonClicked(Button* button) override;
     void sendFx();
-    //AudioProcessorValueTreeState tree;
+    void linkPerformance();
     static void runTest();
 
 private:
@@ -78,6 +76,8 @@ private:
     AudioParameterBool* mResSendParameter;
     AudioParameterBool* mReverbWetSendParameter;
     AudioParameterBool* mReverbSizeSendParameter;
+    // PERFORMANCE PARAMETERS
+    AudioParameterFloat* mPerfParameter;
 
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;

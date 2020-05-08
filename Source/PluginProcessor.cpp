@@ -66,6 +66,11 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     addParameter(mReverbSizeSendParameter = new AudioParameterBool("reverbSizeSend",
                                                             "RevebrSizeSend",
                                                             false));
+    addParameter(mPerfParameter = new AudioParameterFloat("performance",
+                                                            "Performance",
+                                                            0.0f,
+                                                            100.0f,
+                                                            0.0f));
 
     //TanenLiveV0AudioProcessor::runTest();
 }
@@ -226,6 +231,11 @@ void TanenLiveV0AudioProcessor::sendFx() {
     std::cout << *mReverbSizeSendParameter;
 }
 
+void TanenLiveV0AudioProcessor::linkPerformance() {
+    std::cout << "\n Performance : ";
+    std::cout << *mPerfParameter;
+}
+
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
@@ -246,14 +256,15 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
     fxReverbChain.process(contextToUse);
     updateReverb();
-    
     sendFx();
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    linkPerformance();
+    
+    /*for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         // ..do something to the data...
 
-    }
+    }*/
 }
 
 //==============================================================================

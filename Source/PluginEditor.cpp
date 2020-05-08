@@ -105,10 +105,11 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbDrySlider.setRange(reverbDryParameter->range.start, reverbDryParameter->range.end);
     mReverbDrySlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     mReverbDrySlider.setValue(*reverbDryParameter);
-    mReverbDrySlider.setLookAndFeel(&reverbLook);
+    //mReverbDrySlider.setLookAndFeel(&reverbLook);
+    mReverbDrySlider.setColour(juce::Slider::trackColourId, Colours::lightsteelblue);
     addAndMakeVisible(mReverbDrySlider);
     
-    mReverbDrySlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mReverbDrySlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 100, mReverbDrySlider.getTextBoxHeight());
     mReverbDrySlider.onValueChange = [this, reverbDryParameter] { *reverbDryParameter = mReverbDrySlider.getValue(); };
     mReverbDrySlider.onDragStart = [reverbDryParameter] { reverbDryParameter->beginChangeGesture(); };
     mReverbDrySlider.onDragEnd = [reverbDryParameter] { reverbDryParameter->endChangeGesture(); };
@@ -156,6 +157,21 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     reverbSizeSendButton.addListener(this);
     // TODO when DELAY will be ok
     delaySendButton.addListener(this);
+    
+    // PERFORMANCE
+    AudioParameterFloat* perfParameter = (AudioParameterFloat*)params.getUnchecked(10);
+    mPerfSlider.setRange(perfParameter->range.start, perfParameter->range.end);
+    mPerfSlider.setSliderStyle(Slider::SliderStyle::LinearBarVertical);
+    mPerfSlider.setValue(*perfParameter);
+    //mPerfSlider.setLookAndFeel(&sliderBarLook);
+    mPerfSlider.setColour(juce::Slider::trackColourId, Colours::red);
+    addAndMakeVisible(mPerfSlider);
+    
+    mPerfSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mPerfSlider.onValueChange = [this, perfParameter] { *perfParameter = mPerfSlider.getValue(); };
+    mPerfSlider.onDragStart = [perfParameter] { perfParameter->beginChangeGesture(); };
+    mPerfSlider.onDragEnd = [perfParameter] { perfParameter->endChangeGesture(); };
+
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
@@ -302,7 +318,9 @@ void TanenLiveV0AudioProcessorEditor::resized()
     delaySendButton.setBounds(delayZone.removeFromBottom(sendSize).reduced(sendMargin));
 
     // PERFORMANCE
+    mPerfSlider.setBounds(performanceZone);
     mImageComponent.setBounds(performanceZone.reduced(imageMargin));
+
 
 }
 
