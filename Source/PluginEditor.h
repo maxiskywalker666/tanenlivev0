@@ -81,6 +81,41 @@ public:
         }
 };
 
+class DelayLookAndFeel : public LookAndFeel_V4
+{
+public:
+    DelayLookAndFeel(){}
+    ~DelayLookAndFeel(){
+        
+    }
+    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
+        {
+            auto radius = jmin (width / 2, height / 2) - 4.0f;
+            auto centreX = x + width  * 0.5f;
+            auto centreY = y + height * 0.5f;
+            auto rx = centreX - radius;
+            auto ry = centreY - radius;
+            auto rw = radius * 2.0f;
+            auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+            
+            // fill
+            g.setColour (Colours::mediumpurple);
+            g.fillEllipse (rx, ry, rw, rw);
+            // outline
+            g.setColour (Colours::black);
+            g.drawEllipse (rx, ry, rw, rw, 3.0f);
+            // pointer
+            Path p;
+            auto pointerLength = radius * 0.53f;
+            auto pointerThickness = 4.0f;
+            p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+            p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
+            // pointer
+            g.setColour (Colours::black);
+            g.fillPath (p);
+        }
+};
+
 class SendLookAndFeel : public LookAndFeel_V4
 {
 public:
@@ -160,6 +195,7 @@ private:
     ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
+    DelayLookAndFeel delayLook;
     SendLookAndFeel sendLook;
     // TANEN LIVE General Parameters
     // FILTER Parameters
@@ -181,7 +217,20 @@ private:
     TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
-    TextButton delaySendButton{"BYPASSED"};
+    Slider mDelayDryWetSlider;
+    Label mDelayDryWetLabel;
+    Slider mDelayDepthSlider;
+    Label mDelayDepthLabel;
+    Slider mDelayRateSlider;
+    Label mDelayRateLabel;
+    Slider mDelayFeedbackSlider;
+    Label mDelayFeedbackLabel;
+    TextButton delayDryWetSendButton{"BYPASSED"};
+    TextButton delayDepthSendButton{"BYPASSED"};
+    TextButton delayRateSendButton{"BYPASSED"};
+    TextButton delayFeedbackSendButton{"BYPASSED"};
+    Slider mDelayPhaseOffsetSlider;
+    Label mDelayPhaseOffsetLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
     

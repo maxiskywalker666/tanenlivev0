@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h" // include juce_core that include juce_UniTest
 // #include "/Applications/JUCE/modules/juce_core/unit_tests/juce_UnitTest.h"
+#define MAX_DELAY_TIME 2
 
 //==============================================================================
 /**
@@ -58,41 +59,66 @@ public:
     
     void updateFilter();
     void updateReverb();
-    void sendFx();
+    void testSendFx();
     void linkPerformance();
+    float lin_interp(float sample_x, float sample_x1, float inPhase);
+    
+    // TODO TEST
     static void runTest();
 
 private:
     // FILTER PARAMETERS
-    AudioParameterInt* mFilterTypeParameter;
+    AudioParameterInt* mFilterTypeParameter; // 0
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResParameter;
     // REVERB PARAMETERS
     AudioParameterFloat* mReverbDryParameter;
     AudioParameterFloat* mReverbWetParameter;
-    AudioParameterFloat* mReverbSizeParameter;
+    AudioParameterFloat* mReverbSizeParameter; // 5
     // SEND PARAMETERS
-    AudioParameterBool* mCutoffSendParameter;
+    AudioParameterBool* mCutoffSendParameter; // 6
     AudioParameterBool* mResSendParameter;
     AudioParameterBool* mReverbWetSendParameter;
-    AudioParameterBool* mReverbSizeSendParameter;
+    AudioParameterBool* mReverbSizeSendParameter; // 9
     // PERFORMANCE PARAMETERS
-    AudioParameterFloat* mPerfParameter;
+    AudioParameterFloat* mPerfParameter; // 10
+    // DELAY PARAMETERS
+    AudioParameterFloat* mDelayDryWetParameter; // 11
+    AudioParameterFloat* mDelayDepthParameter;
+    AudioParameterFloat* mDelayRateParameter;
+    AudioParameterFloat* mDelayPhaseOffsetParameter;
+    AudioParameterFloat* mDelayFeedbackParameter; // 15
+    // DELAY SEND PARAMETERS
+    AudioParameterBool* mDelayDryWetSendParameter; // 16
+    AudioParameterBool* mDelayDepthSendParameter; // 17
+    AudioParameterBool* mDelayRateSendParameter; // 18
+    AudioParameterBool* mDelayFeedbackSendParameter; //19
 
+
+    // VARIABLES
     float lastSampleRate;
+    // Filter objects
+    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     float freqMin;
     float freqMax;
     float resMin;
     float resMax;
-    dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
-    enum
-    {
-        reverbIndex             // [2]
-    };
- 
-    juce::dsp::ProcessorChain<juce::dsp::Reverb> fxReverbChain; // [1]
-    //dsp::Reverb::Reverb();
-    //dsp::Reverb::Parameters();
+    // Reverb init
+    juce::dsp::ProcessorChain<juce::dsp::Reverb> fxReverbChain;
+    // Delay objects
+    float mLFOPhase;
+    float mDelayTimeSmoothed;
+    float mFeedbackLeft;
+    float mFeedbackRight;
+    float mDelayTimeInSamples;
+    float mDelayReadHead;
+    int mCircularBufferWriteHead;
+    int mCircularBufferLength;
+    float* mCircularBufferLeft;
+    float* mCircularBufferRight;
+    float rateMin;
+    float rateMax;
+    float feedbackMax;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessor)
 };
