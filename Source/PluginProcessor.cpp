@@ -24,6 +24,10 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
 #endif
 {
     lastSampleRate = 44100;
+    freqMin = 20.0f;
+    freqMax = 20000.0f;
+    resMin = 1.0f;
+    resMax = 5.0f;
     addParameter(mFilterTypeParameter = new AudioParameterInt("filterType",
                                                             "FilterType",
                                                             0,
@@ -31,21 +35,43 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             0));
     addParameter(mFilterCutoffParameter = new AudioParameterFloat("cutoff",
                                                             "Cutoff",
-                                                            20.0f, // begin
-                                                            20000.0f, // end
+                                                            freqMin, // min
+                                                            freqMax, // max
                                                             20000.0f)); // default position
-    addParameter(mFilterResonanceParameter = new AudioParameterFloat("resonance",
+    addParameter(mFilterResParameter = new AudioParameterFloat("resonance",
                                                             "Resonance",
-                                                            1.0f,
-                                                            5.0f,
+                                                            resMin,
+                                                            resMax,
                                                             1.0f));
-    addParameter(mReverbDryWetParameter = new AudioParameterFloat("dryWetReverb",
-                                                            "DryWetReverb",
+    addParameter(mReverbDryParameter = new AudioParameterFloat("dryReverb",
+                                                            "DryReverb",
+                                                            0.0f,
+                                                            1.0f,
+                                                            1.0f));
+    addParameter(mReverbWetParameter = new AudioParameterFloat("wetReverb",
+                                                            "WetReverb",
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
-    addParameter(mReverbRoomSizeParameter = new AudioParameterFloat("roomSizeReverb",
+    addParameter(mReverbSizeParameter = new AudioParameterFloat("roomSizeReverb",
                                                             "RoomSizeReverb",
+                                                            0.0f,
+                                                            1.0f,
+                                                            0.0f));
+    addParameter(mCutoffSendParameter = new AudioParameterBool("cutoffSend",
+                                                            "CutoffSend",
+                                                            false));
+    addParameter(mResSendParameter = new AudioParameterBool("resSend",
+                                                            "ResSend",
+                                                            false));
+    addParameter(mReverbWetSendParameter = new AudioParameterBool("reverbWetSend",
+                                                            "ReverbWetSend",
+                                                            false));
+    addParameter(mReverbSizeSendParameter = new AudioParameterBool("reverbSizeSend",
+                                                            "RevebrSizeSend",
+                                                            false));
+    addParameter(mPerfParameter = new AudioParameterFloat("performance",
+                                                            "Performance",
                                                             0.0f,
                                                             1.0f,
                                                             0.0f));
@@ -159,9 +185,13 @@ bool TanenLiveV0AudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 }
 #endif
 
+/*void TanenLiveV0AudioProcessor::buttonClicked(Button* button) {
+    
+}*/
+
 void TanenLiveV0AudioProcessor::updateFilter() {
     float freq = *mFilterCutoffParameter;
-    float res = *mFilterResonanceParameter;
+    float res = *mFilterResParameter;
     /** LOWPASS */
     if (*mFilterTypeParameter == 0) {
         *iIRFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
@@ -174,19 +204,60 @@ void TanenLiveV0AudioProcessor::updateFilter() {
 void TanenLiveV0AudioProcessor::updateReverb() {
     const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
     juce::Reverb::Parameters reverbParametersVar;
-    reverbParametersVar.dryLevel = 1.0f;
     reverbParametersVar = reverbParameters;
-    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
-    reverbParametersVar.wetLevel = *mReverbDryWetParameter;
+    reverbParametersVar.dryLevel = *mReverbDryParameter;
+    reverbParametersVar.wetLevel = *mReverbWetParameter;
+    reverbParametersVar.roomSize = *mReverbSizeParameter;
     // Make it a large stereo reverb
     reverbParametersVar.width = 1.0f;
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
     // DEBUG
-    std::cout << "roomSize : ";
+    std::cout << "\n roomSize : ";
     std::cout << reverbParameters.roomSize;
     std::cout << "\n dryLevel : ";
     std::cout << reverbParameters.dryLevel;
+    //std::cout << *mReverbDryParameter;
+    std::cout << "\n wetLevel : ";
+    std::cout << reverbParameters.wetLevel;
     std::cout << "\n \n";
+}
+
+void TanenLiveV0AudioProcessor::sendFx() {
+    // tester cette valeur du booléen
+    // DEBUG
+    std::cout << "\n cutoffSend : ";
+    std::cout << *mCutoffSendParameter;
+    std::cout << "\n resSend : ";
+    std::cout << *mResSendParameter;
+    std::cout << "\n reverbWetSend : ";
+    std::cout << *mReverbWetSendParameter;
+    std::cout << "\n reverbSizeSend : ";
+    std::cout << *mReverbSizeSendParameter;
+}
+
+void TanenLiveV0AudioProcessor::linkPerformance() {
+    std::cout << "\n Performance : ";
+    std::cout << *mPerfParameter;
+    if (*mCutoffSendParameter) {
+        // Use logaritmic range to adapt the values in a reasonable and playful way
+        NormalisableRange<float> range = NormalisableRange<float> (0.0f, 1.0f, 1.0f, 1.0f, false);
+        range.setSkewForCentre(0.86f);
+        float perfSkew = range.convertTo0to1(*mPerfParameter);
+        *mFilterCutoffParameter = perfSkew * freqMax;
+    }
+    if (*mResSendParameter) {
+        *mFilterResParameter = *mPerfParameter * resMax;
+    }
+    if (*mReverbWetSendParameter) {
+        *mReverbWetParameter = (float) *mPerfParameter;
+    }
+    if (*mReverbSizeSendParameter) {
+        *mReverbSizeParameter = (float) *mPerfParameter;
+    }
+    std::cout << "\n CutoffParameter : ";
+    std::cout << *mFilterCutoffParameter;
+    std::cout << "\n ResParameter : ";
+    std::cout << *mFilterResParameter;
 }
 
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
@@ -209,13 +280,15 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
     fxReverbChain.process(contextToUse);
     updateReverb();
+    sendFx();
+    linkPerformance();
     
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    /*for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         // ..do something to the data...
 
-    }
+    }*/
 }
 
 //==============================================================================
@@ -250,6 +323,50 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new TanenLiveV0AudioProcessor();
 }
 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #define BEGIN_NAMESPACE(n) namespace n {
 #define END_NAMESPACE }
 

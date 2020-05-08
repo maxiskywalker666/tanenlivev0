@@ -58,19 +58,32 @@ public:
     
     void updateFilter();
     void updateReverb();
-    //AudioProcessorValueTreeState tree;
+    void sendFx();
+    void linkPerformance();
     static void runTest();
 
 private:
     // FILTER PARAMETERS
     AudioParameterInt* mFilterTypeParameter;
     AudioParameterFloat* mFilterCutoffParameter;
-    AudioParameterFloat* mFilterResonanceParameter;
+    AudioParameterFloat* mFilterResParameter;
     // REVERB PARAMETERS
-    AudioParameterFloat* mReverbDryWetParameter;
-    AudioParameterFloat* mReverbRoomSizeParameter;
-    
+    AudioParameterFloat* mReverbDryParameter;
+    AudioParameterFloat* mReverbWetParameter;
+    AudioParameterFloat* mReverbSizeParameter;
+    // SEND PARAMETERS
+    AudioParameterBool* mCutoffSendParameter;
+    AudioParameterBool* mResSendParameter;
+    AudioParameterBool* mReverbWetSendParameter;
+    AudioParameterBool* mReverbSizeSendParameter;
+    // PERFORMANCE PARAMETERS
+    AudioParameterFloat* mPerfParameter;
+
     float lastSampleRate;
+    float freqMin;
+    float freqMax;
+    float resMin;
+    float resMax;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     enum
     {

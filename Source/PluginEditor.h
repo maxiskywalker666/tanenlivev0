@@ -79,6 +79,15 @@ public:
             g.setColour (Colours::black);
             g.fillPath (p);
         }
+};
+
+class SendLookAndFeel : public LookAndFeel_V4
+{
+public:
+    SendLookAndFeel(){}
+    ~SendLookAndFeel(){
+        
+    }
     void drawButtonBackground (Graphics& g, Button& button, const Colour& backgroundColour, bool isMouseOverButton, bool isButtonDown) override
         {
             auto buttonArea = button.getLocalBounds();
@@ -122,7 +131,9 @@ public:
 
 /**
 */
-class TanenLiveV0AudioProcessorEditor  : public AudioProcessorEditor
+class TanenLiveV0AudioProcessorEditor  : public AudioProcessorEditor,
+                                         public Button::Listener
+
 {
 public:
     TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor&);
@@ -131,14 +142,25 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+    void sendFx(Button* button);
+    void bypassFx(Button* button);
+    void buttonClicked(Button* button) override;
 
 private:
+    // ZONES
+    TextButton headerFrame;
+    TextButton footerFrame;
+    TextButton filterFrame;
+    TextButton reverbFrame;
+    TextButton delayFrame;
+    TextButton performanceFrame;
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TanenLiveV0AudioProcessor& processor;
     ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
+    SendLookAndFeel sendLook;
     // TANEN LIVE General Parameters
     // FILTER Parameters
     Slider mFilterCutoffSlider;
@@ -146,13 +168,22 @@ private:
     Slider mFilterResSlider;
     Label mFilterResLabel;
     ComboBox mFilterType;
+    TextButton cutoffSendButton{"BYPASSED"};
+    TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
-    Slider mReverbDryWetSlider;
-    Label mReverbDryWetLabel;
-    Slider mReverbRoomSizeSlider;
-    Label mReverbRoomSizeLabel;
-    TextButton reverbSendButton{"SEND"};
-        
+    Slider mReverbDrySlider;
+    Slider mReverbWetSlider;
+    Label mReverbWetLabel;
+    Slider mReverbSizeSlider;
+    Label mReverbSizeLabel;
+    Slider mDrySlider; // horizontale slider in the header
+    TextButton reverbWetSendButton{"BYPASSED"};
+    TextButton reverbSizeSendButton{"BYPASSED"};
+    // DELAY Parameters
+    TextButton delaySendButton{"BYPASSED"};
+    // PERFORMANCE Parameters
+    Slider mPerfSlider;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };
