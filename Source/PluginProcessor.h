@@ -66,11 +66,11 @@ private:
     // FILTER PARAMETERS
     AudioParameterInt* mFilterTypeParameter;
     AudioParameterFloat* mFilterCutoffParameter;
-    AudioParameterFloat* mFilterResonanceParameter;
+    AudioParameterFloat* mFilterResParameter;
     // REVERB PARAMETERS
     AudioParameterFloat* mReverbDryParameter;
     AudioParameterFloat* mReverbWetParameter;
-    AudioParameterFloat* mReverbRoomSizeParameter;
+    AudioParameterFloat* mReverbSizeParameter;
     // SEND PARAMETERS
     AudioParameterBool* mCutoffSendParameter;
     AudioParameterBool* mResSendParameter;
@@ -80,6 +80,10 @@ private:
     AudioParameterFloat* mPerfParameter;
 
     float lastSampleRate;
+    float freqMin;
+    float freqMax;
+    float resMin;
+    float resMax;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     enum
     {
