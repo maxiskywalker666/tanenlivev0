@@ -172,6 +172,7 @@ private:
     TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
+    Slider mReverbDrySlider;
     Slider mReverbWetSlider;
     Label mReverbWetLabel;
     Slider mReverbRoomSizeSlider;

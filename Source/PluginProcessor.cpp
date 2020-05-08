@@ -39,6 +39,11 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             1.0f,
                                                             5.0f,
                                                             1.0f));
+    addParameter(mReverbDryParameter = new AudioParameterFloat("dryReverb",
+                                                            "DryReverb",
+                                                            0.0f,
+                                                            1.0f,
+                                                            1.0f));
     addParameter(mReverbWetParameter = new AudioParameterFloat("wetReverb",
                                                             "WetReverb",
                                                             0.0f,
@@ -50,8 +55,17 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
                                                             1.0f,
                                                             0.0f));
     addParameter(mCutoffSendParameter = new AudioParameterBool("cutoffSend",
-                                                               "CutoffSend",
-                                                               false));
+                                                            "CutoffSend",
+                                                            false));
+    addParameter(mResSendParameter = new AudioParameterBool("resSend",
+                                                            "ResSend",
+                                                            false));
+    addParameter(mReverbWetSendParameter = new AudioParameterBool("reverbWetSend",
+                                                            "ReverbWetSend",
+                                                            false));
+    addParameter(mReverbSizeSendParameter = new AudioParameterBool("reverbSizeSend",
+                                                            "RevebrSizeSend",
+                                                            false));
 
     //TanenLiveV0AudioProcessor::runTest();
 }
@@ -182,9 +196,9 @@ void TanenLiveV0AudioProcessor::updateReverb() {
     const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
     juce::Reverb::Parameters reverbParametersVar;
     reverbParametersVar = reverbParameters;
-    reverbParametersVar.dryLevel = 1.0f; // marche pas
-    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
+    reverbParametersVar.dryLevel = *mReverbDryParameter;
     reverbParametersVar.wetLevel = *mReverbWetParameter;
+    reverbParametersVar.roomSize = *mReverbRoomSizeParameter;
     // Make it a large stereo reverb
     reverbParametersVar.width = 1.0f;
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
@@ -192,7 +206,8 @@ void TanenLiveV0AudioProcessor::updateReverb() {
     std::cout << "\n roomSize : ";
     std::cout << reverbParameters.roomSize;
     std::cout << "\n dryLevel : ";
-    std::cout << reverbParametersVar.dryLevel;
+    std::cout << reverbParameters.dryLevel;
+    //std::cout << *mReverbDryParameter;
     std::cout << "\n wetLevel : ";
     std::cout << reverbParameters.wetLevel;
     std::cout << "\n \n";
@@ -203,6 +218,12 @@ void TanenLiveV0AudioProcessor::sendFx() {
     // DEBUG
     std::cout << "\n cutoffSend : ";
     std::cout << *mCutoffSendParameter;
+    std::cout << "\n resSend : ";
+    std::cout << *mResSendParameter;
+    std::cout << "\n reverbWetSend : ";
+    std::cout << *mReverbWetSendParameter;
+    std::cout << "\n reverbSizeSend : ";
+    std::cout << *mReverbSizeSendParameter;
 }
 
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)

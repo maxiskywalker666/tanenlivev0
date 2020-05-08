@@ -70,11 +70,15 @@ private:
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResonanceParameter;
     // REVERB PARAMETERS
+    AudioParameterFloat* mReverbDryParameter;
     AudioParameterFloat* mReverbWetParameter;
     AudioParameterFloat* mReverbRoomSizeParameter;
     // SEND PARAMETERS
     AudioParameterBool* mCutoffSendParameter;
-    
+    AudioParameterBool* mResSendParameter;
+    AudioParameterBool* mReverbWetSendParameter;
+    AudioParameterBool* mReverbSizeSendParameter;
+
     float lastSampleRate;
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     enum
