@@ -239,8 +239,11 @@ void TanenLiveV0AudioProcessor::linkPerformance() {
     std::cout << "\n Performance : ";
     std::cout << *mPerfParameter;
     if (*mCutoffSendParameter) {
-        //TODO Get maximum range instead of raw value
-        *mFilterCutoffParameter = *mPerfParameter * freqMax;
+        // Use logaritmic range to adapt the values in a reasonable and playful way
+        NormalisableRange<float> range = NormalisableRange<float> (0.0f, 1.0f, 1.0f, 1.0f, false);
+        range.setSkewForCentre(0.86f);
+        float perfSkew = range.convertTo0to1(*mPerfParameter);
+        *mFilterCutoffParameter = perfSkew * freqMax;
     }
     if (*mResSendParameter) {
         *mFilterResParameter = *mPerfParameter * resMax;

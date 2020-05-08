@@ -175,8 +175,8 @@ private:
     Slider mReverbDrySlider;
     Slider mReverbWetSlider;
     Label mReverbWetLabel;
-    Slider mReverbRoomSizeSlider;
-    Label mReverbRoomSizeLabel;
+    Slider mReverbSizeSlider;
+    Label mReverbSizeLabel;
     Slider mDrySlider; // horizontale slider in the header
     TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};

@@ -71,7 +71,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     //mFilterCutoffSlider.setBounds(0, 30, 100, 100);
     mFilterCutoffSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterCutoffSlider.setValue(*filterCutoffParameter);
-    mFilterCutoffSlider.setSkewFactorFromMidPoint (500);
+    mFilterCutoffSlider.setSkewFactorFromMidPoint (1000);
     mFilterCutoffSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterCutoffSlider);
     
@@ -85,18 +85,18 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterCutoffLabel.setText("CUTOFF", dontSendNotification);
     
     // FILTER RESONANCE
-    AudioParameterFloat* filterResonanceParameter = (AudioParameterFloat*)params.getUnchecked(2);
-    mFilterResSlider.setRange(filterResonanceParameter->range.start, filterResonanceParameter->range.end);
+    AudioParameterFloat* filterResParameter = (AudioParameterFloat*)params.getUnchecked(2);
+    mFilterResSlider.setRange(filterResParameter->range.start, filterResParameter->range.end);
     //mFilterResSlider.setBounds(0, 160, 100, 100);
     mFilterResSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    mFilterResSlider.setValue(*filterResonanceParameter);
+    mFilterResSlider.setValue(*filterResParameter);
     mFilterResSlider.setLookAndFeel(&filterLook);
     addAndMakeVisible(mFilterResSlider);
     
     mFilterResSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 100, mFilterResSlider.getTextBoxHeight());
-    mFilterResSlider.onValueChange = [this, filterResonanceParameter] { *filterResonanceParameter = mFilterResSlider.getValue(); };
-    mFilterResSlider.onDragStart = [filterResonanceParameter] { filterResonanceParameter->beginChangeGesture(); };
-    mFilterResSlider.onDragEnd = [filterResonanceParameter] { filterResonanceParameter->endChangeGesture(); };
+    mFilterResSlider.onValueChange = [this, filterResParameter] { *filterResParameter = mFilterResSlider.getValue(); };
+    mFilterResSlider.onDragStart = [filterResParameter] { filterResParameter->beginChangeGesture(); };
+    mFilterResSlider.onDragEnd = [filterResParameter] { filterResParameter->endChangeGesture(); };
     // resonance label
     mFilterResLabel.setText("RESONANCE", dontSendNotification);
     
@@ -129,18 +129,18 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbWetLabel.setText("WET", dontSendNotification);
     
     // REVERB ROOMSIZE
-    AudioParameterFloat* reverbRoomSizeParameter = (AudioParameterFloat*)params.getUnchecked(5);
-    mReverbRoomSizeSlider.setRange(reverbRoomSizeParameter->range.start, reverbRoomSizeParameter->range.end);
-    mReverbRoomSizeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    mReverbRoomSizeSlider.setValue(*reverbRoomSizeParameter);
-    mReverbRoomSizeSlider.setLookAndFeel(&reverbLook);
-    addAndMakeVisible(mReverbRoomSizeSlider);
+    AudioParameterFloat* reverbSizeParameter = (AudioParameterFloat*)params.getUnchecked(5);
+    mReverbSizeSlider.setRange(reverbSizeParameter->range.start, reverbSizeParameter->range.end);
+    mReverbSizeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mReverbSizeSlider.setValue(*reverbSizeParameter);
+    mReverbSizeSlider.setLookAndFeel(&reverbLook);
+    addAndMakeVisible(mReverbSizeSlider);
     
-    mReverbRoomSizeSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-    mReverbRoomSizeSlider.onValueChange = [this, reverbRoomSizeParameter] { *reverbRoomSizeParameter = mReverbRoomSizeSlider.getValue(); };
-    mReverbRoomSizeSlider.onDragStart = [reverbRoomSizeParameter] { reverbRoomSizeParameter->beginChangeGesture(); };
-    mReverbRoomSizeSlider.onDragEnd = [reverbRoomSizeParameter] { reverbRoomSizeParameter->endChangeGesture(); };
-    mReverbRoomSizeLabel.setText("SIZE", dontSendNotification);
+    mReverbSizeSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mReverbSizeSlider.onValueChange = [this, reverbSizeParameter] { *reverbSizeParameter = mReverbSizeSlider.getValue(); };
+    mReverbSizeSlider.onDragStart = [reverbSizeParameter] { reverbSizeParameter->beginChangeGesture(); };
+    mReverbSizeSlider.onDragEnd = [reverbSizeParameter] { reverbSizeParameter->endChangeGesture(); };
+    mReverbSizeLabel.setText("SIZE", dontSendNotification);
 
     // SEND BUTTON EVENTS
     AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
@@ -168,7 +168,18 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mPerfSlider);
     
     mPerfSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-    mPerfSlider.onValueChange = [this, perfParameter] { *perfParameter = mPerfSlider.getValue(); };
+    mPerfSlider.onValueChange = [this,
+                                 perfParameter,
+                                 filterCutoffParameter,
+                                 filterResParameter,
+                                 reverbWetParameter,
+                                 reverbSizeParameter] { *perfParameter = mPerfSlider.getValue();
+        // TODO Skew modification for the cutof...
+        mFilterCutoffSlider.setValue(*filterCutoffParameter);
+        mFilterResSlider.setValue(*filterResParameter);
+        mReverbWetSlider.setValue(*reverbWetParameter);
+        mReverbSizeSlider.setValue(*reverbSizeParameter);
+    };
     mPerfSlider.onDragStart = [perfParameter] { perfParameter->beginChangeGesture(); };
     mPerfSlider.onDragEnd = [perfParameter] { perfParameter->endChangeGesture(); };
 
@@ -183,6 +194,9 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     if (button == &cutoffSendButton) {
         AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
         *cutoffSendParameter = true;
+        // TODO le régler quand on active le SENDING pour que le potard se mette au bon endroit direct... là faut cliquer deux fois pour que ça le fasse.
+        //AudioParameterFloat* filterCutoffParameter = (AudioParameterFloat*)params.getUnchecked(1);
+        //mFilterCutoffSlider.setValue(*filterCutoffParameter);
     } else if (button == &resSendButton) {
         AudioParameterBool* resSendParameter = (AudioParameterBool*)params.getUnchecked(7);
         *resSendParameter = true;
@@ -202,14 +216,14 @@ void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
         AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
         *cutoffSendParameter = false;
     } else if (button == &resSendButton) {
-        AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(7);
-        *cutoffSendParameter = false;
+        AudioParameterBool* resSendParameter = (AudioParameterBool*)params.getUnchecked(7);
+        *resSendParameter = false;
     } else if (button == &reverbWetSendButton) {
-        AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(8);
-        *cutoffSendParameter = false;
+        AudioParameterBool* reverbWetParameter = (AudioParameterBool*)params.getUnchecked(8);
+        *reverbWetParameter = false;
     } else if (button == &reverbSizeSendButton) {
-        AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(9);
-        *cutoffSendParameter = false;
+        AudioParameterBool* reverbSizeParameter = (AudioParameterBool*)params.getUnchecked(9);
+        *reverbSizeParameter = false;
     }
     button->setToggleState(false, NotificationType::dontSendNotification);
     button->setButtonText("BYPASSED");
@@ -306,11 +320,11 @@ void TanenLiveV0AudioProcessorEditor::resized()
     reverbWetSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     // size slider
     auto sizeZone = reverbZone.removeFromTop(itemSize);
-    mReverbRoomSizeSlider.setBounds(sizeZone.reduced(itemMargin));
+    mReverbSizeSlider.setBounds(sizeZone.reduced(itemMargin));
     // size label
-    addAndMakeVisible(mReverbRoomSizeLabel);
-    mReverbRoomSizeLabel.setJustificationType(Justification::centred);
-    mReverbRoomSizeLabel.setBounds(sizeZone.removeFromBottom(labelMargin));
+    addAndMakeVisible(mReverbSizeLabel);
+    mReverbSizeLabel.setJustificationType(Justification::centred);
+    mReverbSizeLabel.setBounds(sizeZone.removeFromBottom(labelMargin));
     // size send button
     reverbSizeSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     
