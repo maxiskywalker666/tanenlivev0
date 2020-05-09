@@ -207,7 +207,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mDelayPhaseOffsetSlider.setRange(phaseParameter->range.start, phaseParameter->range.end);
     mDelayPhaseOffsetSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     mDelayPhaseOffsetSlider.setValue(*phaseParameter);
-    mReverbDrySlider.setColour(juce::Slider::trackColourId, Colours::lightsteelblue);
+    mDelayPhaseOffsetSlider.setColour(juce::Slider::trackColourId, Colours::mediumpurple);
     mDelayPhaseOffsetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mDelayPhaseOffsetSlider.onValueChange = [this, phaseParameter] { *phaseParameter = mDelayPhaseOffsetSlider.getValue(); };
     mDelayPhaseOffsetSlider.onDragStart = [phaseParameter] { phaseParameter->beginChangeGesture(); };
@@ -278,8 +278,8 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
                                  dryWetParameter,
                                  depthParameter,
                                  rateParameter,
-                                 feedbackParameter] { *perfParameter = mPerfSlider.getValue();
-        // TODO Skew modification for the cutof...
+                                 feedbackParameter] {
+        *perfParameter = mPerfSlider.getValue();
         mFilterCutoffSlider.setValue(*filterCutoffParameter);
         mFilterResSlider.setValue(*filterResParameter);
         mReverbWetSlider.setValue(*reverbWetParameter);
@@ -413,7 +413,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     performanceFrame.setBounds(performanceZone);
     // zone in zone :
     auto itemMargin = 15;
-    auto imageMargin = 80;
+    auto imageMargin = 100;
     auto headerMargin = 3;
     auto itemSize = 125;
     auto sendSize = 50;
@@ -457,6 +457,9 @@ void TanenLiveV0AudioProcessorEditor::resized()
     reverbSizeSendButton.setBounds(reverbZone.removeFromTop(sendSize).reduced(sendMargin));
     
     // DELAY
+    // phase offset slider
+    auto performanceHeaderZone = header.removeFromLeft(fxWidth);
+    mDelayPhaseOffsetSlider.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
     // drywet slider
     auto delayDryWetZone = delayZoneLeft.removeFromTop(itemSize);
     mDelayDryWetSlider.setBounds(delayDryWetZone.reduced(itemMargin));

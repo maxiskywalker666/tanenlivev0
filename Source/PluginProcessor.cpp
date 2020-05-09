@@ -40,8 +40,8 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     mFeedbackRight = 0;
     mDelayTimeSmoothed = 0;
     mLFOPhase = 0;
-    rateMin = 0.1f;
-    rateMax = 20.f;
+    rateMin = 0.001f;
+    rateMax = 50.f;
     feedbackMax = 0.98f;
     // PARAMETERS INIT
     addParameter(mFilterTypeParameter       = new AudioParameterInt  ("filterType", "FilterType", 0, 1, 0));               // 0
@@ -299,7 +299,9 @@ void TanenLiveV0AudioProcessor::linkPerformance() {
         *mDelayDepthParameter = (float) *mPerfParameter;
     }
     if (*mDelayRateSendParameter) {
-        *mDelayRateParameter = (float) *mPerfParameter * rateMax;
+        *mDelayRateParameter = (float) (1 - *mPerfParameter) * rateMax;
+        // TODO Reverse Time : if (bool) {
+        // *mDelayRateParameter = (float) (*mPerfParameter) * rateMax;
     }
     if (*mDelayFeedbackSendParameter) {
         *mDelayFeedbackParameter = (float) *mPerfParameter * feedbackMax;
@@ -345,13 +347,11 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     {
         float lfoOut = (2*M_PI * mLFOPhase);
         mLFOPhase += *mDelayRateParameter / getSampleRate();
-        // mLFOPhase += 50 * getSampleRate();
         if (mLFOPhase > 1) {
             mLFOPhase -= 1;
         }
         lfoOut *= *mDelayDepthParameter;
         
-        //float lfoOutMapped = -1.f;
         float lfoOutMapped = jmap(lfoOut, -1.f, 1.f, 0.005f, 0.03f);
         
         mDelayTimeSmoothed = mDelayTimeSmoothed - 0.001 * (mDelayTimeSmoothed - lfoOutMapped);
@@ -374,7 +374,7 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
             readHead_x1 -= mCircularBufferLength;
         }
         
-        // KAPUT HERE
+        // LIN INTERP
         float delay_sample_left = lin_interp((float) mCircularBufferLeft[readHead_x], (float) mCircularBufferLeft[readHead_x1], readHeadFloat);
         float delay_sample_right = lin_interp((float) mCircularBufferRight[readHead_x], (float) mCircularBufferRight[readHead_x1], readHeadFloat);
         
@@ -386,9 +386,6 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
         // DRYWET
         buffer.setSample(0, i, (buffer.getSample(0, i) * (1-*mDelayDryWetParameter))+(delay_sample_left*(*mDelayDryWetParameter)));
         buffer.setSample(1, i, (buffer.getSample(1, i) * (1-*mDelayDryWetParameter))+(delay_sample_right*(*mDelayDryWetParameter)));
-        // WET ONLY ??
-        //buffer.setSample(0, i, (buffer.getSample(0, i) * delay_sample_left * (*mDelayDryWetParameter)));
-        //buffer.setSample(1, i, (buffer.getSample(1, i) * delay_sample_right * (*mDelayDryWetParameter)));
         
         if (mCircularBufferWriteHead >= mCircularBufferLength) {
             mCircularBufferWriteHead = 0;
