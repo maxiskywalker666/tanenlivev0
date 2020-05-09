@@ -17,22 +17,16 @@
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    /*addAndMakeVisible(headerFrame);
-    addAndMakeVisible(footerFrame);
-    addAndMakeVisible(filterFrame);
-    addAndMakeVisible(reverbFrame);
-    addAndMakeVisible(delayFrame);
-    addAndMakeVisible(performanceFrame);*/
+    // WINDOW SIZE
+    setSize (pluginWidth, pluginHeight);
+    
     // IMAGE
     auto t1000Image = ImageCache::getFromMemory(BinaryData::T1000_png, BinaryData::T1000_pngSize);
     if (!t1000Image.isNull())
-        mImageComponent.setImage(t1000Image, RectanglePlacement::stretchToFit);
+        t1000ImageComponent.setImage(t1000Image, RectanglePlacement::stretchToFit);
     else
         jassert(!t1000Image.isNull());
-    addAndMakeVisible(mImageComponent);
-    
-    // WINDOW SIZE
-    setSize (pluginWidth, pluginHeight);
+    addAndMakeVisible(t1000ImageComponent);
     
     // SEND BUTTON
     //cutoffSendButton.setLookAndFeel(&sendLook);
@@ -61,6 +55,14 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(delayFeedbackSendButton);
     
     auto& params = processor.getParameters();
+    
+    // FILTER
+    filterLook.setSliderFillColour(lightGrey);
+    filterLook.setSliderPointerColour(lightBlue);
+    // TITLE
+    mFilterTitle.setJustificationType(Justification::centred);
+    mFilterTitle.setText("FILTER", dontSendNotification);
+    addAndMakeVisible(mFilterTitle);
     // COMBOBOX FILTER TYPE
     AudioParameterInt* filterTypeParameter = (AudioParameterInt*)params.getUnchecked(0);
     //mFilterType.setBounds(0, 280, 100, 30);
@@ -108,12 +110,19 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mFilterResLabel.setText("RESONANCE", dontSendNotification);
     addAndMakeVisible(mFilterResLabel);
     
+    //REVERB
+    reverbLook.setSliderFillColour(grey);
+    reverbLook.setSliderPointerColour(lightBlue);
+    // TITLE
+    mReverbTitle.setJustificationType(Justification::centred);
+    mReverbTitle.setText("REVERB", dontSendNotification);
+    addAndMakeVisible(mReverbTitle);
     // REVERB DRY
     AudioParameterFloat* reverbDryParameter = (AudioParameterFloat*)params.getUnchecked(3);
     mReverbDrySlider.setRange(reverbDryParameter->range.start, reverbDryParameter->range.end);
     mReverbDrySlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     mReverbDrySlider.setValue(*reverbDryParameter);
-    mReverbDrySlider.setColour(juce::Slider::trackColourId, lightGrey);
+    mReverbDrySlider.setColour(juce::Slider::trackColourId, grey);
     mReverbDrySlider.setColour(juce::Slider::thumbColourId, lightBlue);
     mReverbDrySlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 100, mReverbDrySlider.getTextBoxHeight());
     mReverbDrySlider.onValueChange = [this, reverbDryParameter] { *reverbDryParameter = mReverbDrySlider.getValue(); };
@@ -159,7 +168,12 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mReverbSizeLabel);
     
     /* DELAY STARTS HERE ***************************************************************************************************************************/
-    
+    delayLook.setSliderFillColour(darkGrey);
+    delayLook.setSliderPointerColour(lightBlue);
+    // TITLE
+    mDelayTitle.setJustificationType(Justification::centred);
+    mDelayTitle.setText("DESTRUCT DELAY", dontSendNotification);
+    addAndMakeVisible(mDelayTitle);
     // DRY WET
     AudioParameterFloat* dryWetParameter = (AudioParameterFloat*)params.getUnchecked(11);
     mDelayDryWetSlider.setRange(dryWetParameter->range.start, dryWetParameter->range.end);
@@ -213,7 +227,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mXTremFeedbackSlider.setRange(xTremFeedbackParameter->range.start, xTremFeedbackParameter->range.end);
     mXTremFeedbackSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     mXTremFeedbackSlider.setValue(*xTremFeedbackParameter);
-    mXTremFeedbackSlider.setColour(juce::Slider::trackColourId, lightGrey);
+    mXTremFeedbackSlider.setColour(juce::Slider::trackColourId, darkGrey);
     mXTremFeedbackSlider.setColour(juce::Slider::thumbColourId, lightBlue);
     mXTremFeedbackSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     mXTremFeedbackSlider.onValueChange = [this, xTremFeedbackParameter] { *xTremFeedbackParameter = mXTremFeedbackSlider.getValue(); };
@@ -597,9 +611,17 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
     //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     getLookAndFeel().setColour(juce::ColourSelector::backgroundColourId , almostBlack);
     g.fillAll(darkDarkGrey);
-    g.setColour (fontColour);
-    g.setFont (fontSize);
-    g.drawFittedText ("TANEN LIVE MACHINE", getLocalBounds(), Justification::centredBottom, 1);
+
+    g.setColour(almostBlack);
+    g.fillRect(headerTitlesRectangle);
+    g.setColour(darkDarkGrey);
+    g.fillRect(performanceTitleRectangle);
+    
+    g.setColour(fontColour);
+    g.drawFittedText("T1000 FACTORY", getLocalBounds(), Justification::centredBottom, 1);
+    g.setFont(logoFontSize);
+    g.drawFittedText("TANEN LIVE", getLocalBounds().removeFromTop(40), Justification::centred, 1);
+    g.drawFittedText("MACHINE", getLocalBounds().removeFromTop(120), Justification::centred, 1);
     
     drawSendLines(g);
 }
@@ -608,7 +630,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
 {
     //setSize (600 width, 450 height);
     auto area = getLocalBounds();
-    //auto headerHeight = 40;
+    //auto headerHeight = 80;
     //auto footerHeight = 60;
     // zone in zone :
     /*auto itemMargin = 15;
@@ -620,27 +642,25 @@ void TanenLiveV0AudioProcessorEditor::resized()
     auto labelMargin = 15;*/
     
     auto header = area.removeFromTop(headerHeight);
-    auto footer = area.removeFromBottom(footerHeight);
+    // set footer
+    area.removeFromBottom(footerHeight);
  
     //auto fxWidth = 120; // height = 450 - (40+60) = 350
     auto filterZone = area.removeFromLeft (fxWidth);
     auto reverbZone = area.removeFromLeft (fxWidth);
     auto performanceZone = area.removeFromLeft (fxWidth);
-    auto delayZone = area;
     auto delayZoneLeft = area.removeFromLeft (fxWidth);
     auto delayZoneRight = area.removeFromRight (fxWidth);
-    
-    // DRAW FRAMES
-    headerFrame.setBounds(header);
-    footerFrame.setBounds(footer);
-    filterFrame.setBounds(filterZone);
-    reverbFrame.setBounds(reverbZone);
-    delayFrame.setBounds(delayZone);
-    performanceFrame.setBounds(performanceZone);
-
-    
+        
+    // HEADER TITLES
+    auto headerTitlesZone = header.removeFromTop(headerTitlesHeight);
+    headerTitlesRectangle = headerTitlesZone;
+    mFilterTitle.setBounds(headerTitlesZone.removeFromLeft(fxWidth));
+    mReverbTitle.setBounds(headerTitlesZone.removeFromLeft(fxWidth));
+    performanceTitleRectangle = headerTitlesZone.removeFromLeft(fxWidth);
+    mDelayTitle.setBounds(headerTitlesZone.removeFromLeft(fxWidth*2));
     // FILTER
-    mFilterType.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
+    mFilterType.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin+filterTypeMargin));
     // cutoff slider
     auto cutoffZone = filterZone.removeFromTop(itemSize);
     mFilterCutoffSlider.setBounds(cutoffZone.reduced(itemMargin));
@@ -660,7 +680,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // REVERB
     // dry slider
     auto reverbDryZone = header.removeFromLeft(fxWidth);
-    mReverbDrySlider.setBounds(reverbDryZone.removeFromTop(headerHeight*0.66).reduced(headerMargin));
+    mReverbDrySlider.setBounds(reverbDryZone.removeFromTop((headerHeight-headerTitlesHeight)*0.50));
     // dry label
     mReverbDryLabel.setBounds(reverbDryZone);
     // wet slider
@@ -682,7 +702,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // phase offset slider
     header.removeFromLeft(fxWidth);
     auto xTremZone = header.removeFromLeft(fxWidth);
-    mXTremFeedbackSlider.setBounds(xTremZone.removeFromTop(headerHeight*0.66).reduced(headerMargin));
+    mXTremFeedbackSlider.setBounds(xTremZone.removeFromTop((headerHeight-headerTitlesHeight)*0.50));
     // dry label
     mXTremFeedbackLabel.setBounds(xTremZone);
     // drywet slider
@@ -718,7 +738,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // PERFORMANCE
     performanceZone.removeFromTop(sendMargin);
     mPerfSlider.setBounds(performanceZone);
-    mImageComponent.setBounds(performanceZone.reduced(0, imageMargin));
+    t1000ImageComponent.setBounds(performanceZone.reduced(0, imageMargin));
 
 
 }
