@@ -81,6 +81,41 @@ public:
         }
 };
 
+class DelayLookAndFeel : public LookAndFeel_V4
+{
+public:
+    DelayLookAndFeel(){}
+    ~DelayLookAndFeel(){
+        
+    }
+    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
+        {
+            auto radius = jmin (width / 2, height / 2) - 4.0f;
+            auto centreX = x + width  * 0.5f;
+            auto centreY = y + height * 0.5f;
+            auto rx = centreX - radius;
+            auto ry = centreY - radius;
+            auto rw = radius * 2.0f;
+            auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+            
+            // fill
+            g.setColour (Colours::mediumpurple);
+            g.fillEllipse (rx, ry, rw, rw);
+            // outline
+            g.setColour (Colours::black);
+            g.drawEllipse (rx, ry, rw, rw, 3.0f);
+            // pointer
+            Path p;
+            auto pointerLength = radius * 0.53f;
+            auto pointerThickness = 4.0f;
+            p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+            p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
+            // pointer
+            g.setColour (Colours::black);
+            g.fillPath (p);
+        }
+};
+
 class SendLookAndFeel : public LookAndFeel_V4
 {
 public:
@@ -145,6 +180,7 @@ public:
     void sendFx(Button* button);
     void bypassFx(Button* button);
     void buttonClicked(Button* button) override;
+    void drawSendLines(Graphics&);
 
 private:
     // ZONES
@@ -160,6 +196,7 @@ private:
     ImageComponent mImageComponent;
     FilterLookAndFeel filterLook;
     ReverbLookAndFeel reverbLook;
+    DelayLookAndFeel delayLook;
     SendLookAndFeel sendLook;
     // TANEN LIVE General Parameters
     // FILTER Parameters
@@ -181,9 +218,64 @@ private:
     TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
-    TextButton delaySendButton{"BYPASSED"};
+    Slider mDelayDryWetSlider;
+    Label mDelayDryWetLabel;
+    Slider mDelayDepthSlider;
+    Label mDelayDepthLabel;
+    Slider mDelayRateSlider;
+    Label mDelayRateLabel;
+    Slider mDelayFeedbackSlider;
+    Label mDelayFeedbackLabel;
+    TextButton delayDryWetSendButton{"BYPASSED"};
+    TextButton delayDepthSendButton{"BYPASSED"};
+    TextButton delayRateSendButton{"BYPASSED"};
+    TextButton delayFeedbackSendButton{"BYPASSED"};
+    // TODO Replace useless PhaseOffsetSlider with Checkbox ReverseTime
+    Slider mDelayPhaseOffsetSlider;
+    Label mDelayPhaseOffsetLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
+    
+    // GUI VARIABLES
+    float fontSize = 15.f;
+    float pluginWidth = 600.f;
+    float pluginHeight = 450.f;
+    float headerHeight = 40.f;
+    float footerHeight = 60.f;
+    
+    float itemMargin = 15.f;
+    float imageMargin = 100.f;
+    float headerMargin = 3.f;
+    float itemSize = 125.f;
+    float sendSize = 50.f;
+    float sendMargin = 10.f;
+    float labelMargin = 15.f;
+    
+    float perfOpacity= 0.5f;
+    float fxWidth = 120.f;
+    float lineThickness = 4.f;
+    
+    Colour bypassedLinesColour     = Colours::white.withAlpha(0.5f);
+    Colour sendingLinesColour      = Colours::red.withAlpha(0.5f);
+    // ALL SENDING LINES
+    // upper left
+    Colour filterCutoffSendColour  = bypassedLinesColour;
+    Colour reverbWetSendColour     = bypassedLinesColour;
+    Colour filRevUpperSendColour   = bypassedLinesColour;
+    // lower left
+    Colour filterResSendColour     = bypassedLinesColour;
+    Colour reverbSizeSendColour    = bypassedLinesColour;
+    Colour filRevLowerSendColour   = bypassedLinesColour;
+    // upper right
+    Colour delayDryWetSendColour   = bypassedLinesColour;
+    Colour delayRateSendColour     = bypassedLinesColour;
+    Colour delayUpperSendColour    = bypassedLinesColour;
+    // lower right
+    Colour delayDepthSendColour    = bypassedLinesColour;
+    Colour delayFeedbackSendColour = bypassedLinesColour;
+    Colour delayLowerSendColour    = bypassedLinesColour;
+    // center (performance)
+    Colour joinFinalSendColour     = bypassedLinesColour;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };
