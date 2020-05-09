@@ -255,23 +255,27 @@ private:
     float fxWidth = 120.f;
     float lineThickness = 4.f;
     
-    Colour bypassedLinesColour = Colours::white.withAlpha(0.5f);
-    Colour sendingLinesColour = Colours::red.withAlpha(0.5f);
-    // 8 SEND BUTTONS
-    Colour filterCutoffSendColour  = Colours::white.withAlpha(0.5f);
-    Colour reverbWetSendColour     = Colours::white.withAlpha(0.5f);
-    Colour filRevUpperSendColour   = Colours::white.withAlpha(0.5f);
-
-    Colour filterResSendColour     = Colours::white.withAlpha(0.5f);
-    Colour reverbSizeSendColour    = Colours::white.withAlpha(0.5f);
-    Colour filRevLowerSendColour   = Colours::white.withAlpha(0.5f);
-
-    Colour joinFinalSendColour     = Colours::white.withAlpha(0.5f);
-    
-    Colour delayDryWetSendColour   = Colours::white.withAlpha(0.5f);
-    Colour delayDepthSendColour    = Colours::white.withAlpha(0.5f);
-    Colour delayRateSendColour     = Colours::white.withAlpha(0.5f);
-    Colour delayFeedbackSendColour = Colours::white.withAlpha(0.5f);
+    Colour bypassedLinesColour     = Colours::white.withAlpha(0.5f);
+    Colour sendingLinesColour      = Colours::red.withAlpha(0.5f);
+    // ALL SENDING LINES
+    // upper left
+    Colour filterCutoffSendColour  = bypassedLinesColour;
+    Colour reverbWetSendColour     = bypassedLinesColour;
+    Colour filRevUpperSendColour   = bypassedLinesColour;
+    // lower left
+    Colour filterResSendColour     = bypassedLinesColour;
+    Colour reverbSizeSendColour    = bypassedLinesColour;
+    Colour filRevLowerSendColour   = bypassedLinesColour;
+    // upper right
+    Colour delayDryWetSendColour   = bypassedLinesColour;
+    Colour delayRateSendColour     = bypassedLinesColour;
+    Colour delayUpperSendColour    = bypassedLinesColour;
+    // lower right
+    Colour delayDepthSendColour    = bypassedLinesColour;
+    Colour delayFeedbackSendColour = bypassedLinesColour;
+    Colour delayLowerSendColour    = bypassedLinesColour;
+    // center (performance)
+    Colour joinFinalSendColour     = bypassedLinesColour;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

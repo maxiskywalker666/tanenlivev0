@@ -301,21 +301,22 @@ TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 
 void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     auto& params = processor.getParameters();
-    AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
-    AudioParameterBool* resSendParameter = (AudioParameterBool*)params.getUnchecked(7);
+    AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
+    AudioParameterBool* filterResSendParameter = (AudioParameterBool*)params.getUnchecked(7);
     AudioParameterBool* reverbWetSendParameter = (AudioParameterBool*)params.getUnchecked(8);
     AudioParameterBool* reverbSizeSendParameter = (AudioParameterBool*)params.getUnchecked(9);
     AudioParameterBool* delayDryWetSendParameter = (AudioParameterBool*)params.getUnchecked(16);
     AudioParameterBool* delayDepthSendParameter = (AudioParameterBool*)params.getUnchecked(17);
     AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
+    
     if (button == &cutoffSendButton) {
-        *cutoffSendParameter = true;
+        *filterCutoffSendParameter = true;
         filterCutoffSendColour = sendingLinesColour;
         filRevUpperSendColour  = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &resSendButton) {
-        *resSendParameter = true;
+        *filterResSendParameter = true;
         filterResSendColour    = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &reverbWetSendButton) {
@@ -324,16 +325,26 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
         filRevUpperSendColour  = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &reverbSizeSendButton) {
-        reverbSizeSendColour    = sendingLinesColour;
+        reverbSizeSendColour   = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
         *reverbSizeSendParameter = true;
     } else if (button == &delayDryWetSendButton) {
+        delayDryWetSendColour = sendingLinesColour;
+        delayUpperSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
         *delayDryWetSendParameter = true;
     } else if (button == &delayDepthSendButton) {
+        delayDepthSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
         *delayDepthSendParameter = true;
     } else if (button == &delayRateSendButton) {
+        delayRateSendColour   = sendingLinesColour;
+        delayUpperSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
         *delayRateSendParameter = true;
     } else if (button == &delayFeedbackSendButton) {
+        delayFeedbackSendColour = sendingLinesColour;
+        delayLowerSendColour    = sendingLinesColour;
         *delayFeedbackSendParameter = true;
     }
     button->setToggleState(true, NotificationType::dontSendNotification);
@@ -344,8 +355,8 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
 
 void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
     auto& params = processor.getParameters();
-    AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
-    AudioParameterBool* resSendParameter = (AudioParameterBool*)params.getUnchecked(7);
+    AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
+    AudioParameterBool* filterResSendParameter = (AudioParameterBool*)params.getUnchecked(7);
     AudioParameterBool* reverbWetSendParameter = (AudioParameterBool*)params.getUnchecked(8);
     AudioParameterBool* reverbSizeSendParameter = (AudioParameterBool*)params.getUnchecked(9);
     AudioParameterBool* delayDryWetSendParameter = (AudioParameterBool*)params.getUnchecked(16);
@@ -353,47 +364,94 @@ void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
     AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
 
+    bool leftSideOn  = *filterCutoffSendParameter||*filterResSendParameter ||*reverbWetSendParameter||*reverbSizeSendParameter;
+    bool rightSideOn = *delayDryWetSendParameter ||*delayDepthSendParameter||*delayRateSendParameter||*delayFeedbackSendParameter;
+    
+    // LEFT SIDE
     if (button == &cutoffSendButton) {
         filterCutoffSendColour = bypassedLinesColour;
         if (!*reverbWetSendParameter) {
             filRevUpperSendColour = bypassedLinesColour;
-            if (!*resSendParameter && !*reverbSizeSendParameter) {
+            if (!*filterResSendParameter && !*reverbSizeSendParameter) {
                 filRevLowerSendColour = bypassedLinesColour;
+                if (!rightSideOn) {
+                    joinFinalSendColour = bypassedLinesColour;
+                }
+            }
+        }
+        *filterCutoffSendParameter = false;
+    } else if (button == &resSendButton) {
+        filterResSendColour = bypassedLinesColour;
+        if (!*reverbSizeSendParameter && !*filterCutoffSendParameter && !*reverbWetSendParameter) {
+            filRevLowerSendColour = bypassedLinesColour;
+            if (!rightSideOn) {
                 joinFinalSendColour = bypassedLinesColour;
             }
         }
-        *cutoffSendParameter = false;
-    } else if (button == &resSendButton) {
-        filterResSendColour = bypassedLinesColour;
-        if (!*reverbSizeSendParameter && !*cutoffSendParameter && !*reverbWetSendParameter) {
-            filRevLowerSendColour = bypassedLinesColour;
-            joinFinalSendColour = bypassedLinesColour;
-        }
-        *resSendParameter = false;
+        *filterResSendParameter = false;
     } else if (button == &reverbWetSendButton) {
         reverbWetSendColour = bypassedLinesColour;
-        if (!*cutoffSendParameter) {
+        if (!*filterCutoffSendParameter) {
             filRevUpperSendColour = bypassedLinesColour;
-            if (!*resSendParameter && !*reverbSizeSendParameter) {
+            if (!*filterResSendParameter && !*reverbSizeSendParameter) {
                 filRevLowerSendColour = bypassedLinesColour;
-                joinFinalSendColour = bypassedLinesColour;
+                if (!rightSideOn) {
+                    joinFinalSendColour = bypassedLinesColour;
+                }
             }
         }
         *reverbWetSendParameter = false;
     } else if (button == &reverbSizeSendButton) {
         reverbSizeSendColour = bypassedLinesColour;
-        if (!*resSendParameter && !*cutoffSendParameter && !*reverbWetSendParameter) {
+        if (!*filterResSendParameter && !*filterCutoffSendParameter && !*reverbWetSendParameter) {
             filRevLowerSendColour = bypassedLinesColour;
-            joinFinalSendColour = bypassedLinesColour;
+            if (!rightSideOn) {
+                joinFinalSendColour = bypassedLinesColour;
+            }
         }
         *reverbSizeSendParameter = false;
+    // RIGHT SIDE
     } else if (button == &delayDryWetSendButton) {
+        delayDryWetSendColour = bypassedLinesColour;
+        if (!*delayRateSendParameter) {
+            delayUpperSendColour = bypassedLinesColour;
+            if (!*delayDepthSendParameter && !*delayFeedbackSendParameter) {
+                delayLowerSendColour = bypassedLinesColour;
+                if (!leftSideOn) {
+                    joinFinalSendColour = bypassedLinesColour;
+                }
+            }
+        }
         *delayDryWetSendParameter = false;
     } else if (button == &delayDepthSendButton) {
+        delayDepthSendColour = bypassedLinesColour;
+        if (!*delayFeedbackSendParameter && !*delayDryWetSendParameter && !*delayRateSendParameter) {
+            delayLowerSendColour = bypassedLinesColour;
+            if (!leftSideOn) {
+                joinFinalSendColour = bypassedLinesColour;
+            }
+        }
         *delayDepthSendParameter = false;
     } else if (button == &delayRateSendButton) {
+        delayRateSendColour = bypassedLinesColour;
+        if (!*delayDryWetSendParameter) {
+            delayUpperSendColour = bypassedLinesColour;
+            if (!*delayDepthSendParameter && !*delayFeedbackSendParameter) {
+                delayLowerSendColour = bypassedLinesColour;
+                if (!leftSideOn) {
+                    joinFinalSendColour = bypassedLinesColour;
+                }
+            }
+        }
         *delayRateSendParameter = false;
     } else if (button == &delayFeedbackSendButton) {
+        delayFeedbackSendColour = bypassedLinesColour;
+        if (!*delayDepthSendParameter && !*delayDryWetSendParameter && !*delayRateSendParameter) {
+            delayLowerSendColour = bypassedLinesColour;
+            if (!leftSideOn) {
+                joinFinalSendColour = bypassedLinesColour;
+            }
+        }
         *delayFeedbackSendParameter = false;
     }
     button->setToggleState(false, NotificationType::dontSendNotification);
@@ -413,7 +471,7 @@ void TanenLiveV0AudioProcessorEditor::buttonClicked(Button* button) {
 
 void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     
-    // TODO Redefine colour before drawing each line - with a variable for each path
+    // LEFT SIDE
     // FilterCuttoffSend
     g.setColour(filterCutoffSendColour);
     Line<float> filterCutoffLineV (Point<float> (fxWidth*0.5, headerHeight+itemSize+sendSize-sendMargin),
@@ -422,7 +480,6 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> filterCutoffLineH (Point<float> (fxWidth*0.5-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
                                  Point<float> (fxWidth-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
     g.drawLine (filterCutoffLineH, lineThickness);
-    
     // FilterResSend
     g.setColour(filterResSendColour);
     Line<float> filterResLineV (Point<float> (fxWidth*0.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
@@ -440,7 +497,6 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> reverbWetLineH (Point<float> (fxWidth*1.5+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
                                  Point<float> (fxWidth+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
     g.drawLine (reverbWetLineH, lineThickness);
-    
     // ReverbSizeSend
     g.setColour(reverbSizeSendColour);
     Line<float> reverbSizeLineV (Point<float> (fxWidth*1.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
@@ -454,17 +510,67 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     // FILTER + REVERB
     // filRevUpperSend line
     g.setColour(filRevUpperSendColour);
-    Line<float> filRevFirstLineV (Point<float> (fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
+    Line<float> filRevUpperLineV (Point<float> (fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
                                  Point<float> (fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5));
-    g.drawLine (filRevFirstLineV, lineThickness);
+    g.drawLine (filRevUpperLineV, lineThickness);
     // filRevLowerSend line
     g.setColour(filRevLowerSendColour);
-    Line<float> filRevSndLineV (Point<float> (fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5),
+    Line<float> filRevLowerLineV (Point<float> (fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5),
                                Point<float> (fxWidth, pluginHeight-footerHeight*0.5-lineThickness*0.5));
-    g.drawLine (filRevSndLineV, lineThickness);
-    Line<float> filRevLineH (Point<float> (fxWidth-lineThickness*0.5, pluginHeight-footerHeight*0.5),
+    g.drawLine (filRevLowerLineV, lineThickness);
+    Line<float> filRevLowerLineH (Point<float> (fxWidth-lineThickness*0.5, pluginHeight-footerHeight*0.5),
                                  Point<float> (fxWidth*2.5-lineThickness*0.5, pluginHeight-footerHeight*0.5+lineThickness*1.5));
-    g.drawLine (filRevLineH, lineThickness);
+    g.drawLine (filRevLowerLineH, lineThickness);
+    
+    // RIGHT SIDE
+    // DelayDryWetSend
+    g.setColour(delayDryWetSendColour);
+    Line<float> delayDryWetLineV (Point<float> (pluginWidth-fxWidth*1.5, headerHeight+itemSize+sendSize-sendMargin),
+                                 Point<float> (pluginWidth-fxWidth*1.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (delayDryWetLineV, lineThickness);
+    Line<float> delayDryWetCutoffLineH (Point<float> (pluginWidth-fxWidth*1.5-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
+                                 Point<float> (pluginWidth-fxWidth-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (delayDryWetCutoffLineH, lineThickness);
+    // DelayDepthSend
+    g.setColour(delayDepthSendColour);
+    Line<float> delayDepthLineV (Point<float> (pluginWidth-fxWidth*1.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
+                               Point<float> (pluginWidth-fxWidth*1.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (delayDepthLineV, lineThickness);
+    Line<float> delayDepthLineH (Point<float> (pluginWidth-fxWidth*1.5-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
+                               Point<float> (pluginWidth-fxWidth-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (delayDepthLineH, lineThickness);
+    
+    // DelayRateSend
+    g.setColour(delayRateSendColour);
+    Line<float> delayRateLineV (Point<float> (pluginWidth-fxWidth*0.5, headerHeight+itemSize+sendSize-sendMargin),
+                                 Point<float> (pluginWidth-fxWidth*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (delayRateLineV, lineThickness);
+    Line<float> delayRateLineH (Point<float> (pluginWidth-fxWidth*0.5+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
+                                 Point<float> (pluginWidth-fxWidth+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (delayRateLineH, lineThickness);
+    // DelayFeedbackSend
+    g.setColour(delayFeedbackSendColour);
+    Line<float> delayFeedbackLineV (Point<float> (pluginWidth-fxWidth*0.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
+                               Point<float> (pluginWidth-fxWidth*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (delayFeedbackLineV, lineThickness);
+    Line<float> delayFeedbackLineH (Point<float> (pluginWidth-fxWidth*0.5+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
+                               Point<float> (pluginWidth-fxWidth+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (delayFeedbackLineH , lineThickness);
+    
+    // DELAY CENTER
+    // filRevUpperSend line
+    g.setColour(delayUpperSendColour);
+    Line<float> delayUpperLineV (Point<float> (pluginWidth-fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
+                                 Point<float> (pluginWidth-fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5));
+    g.drawLine (delayUpperLineV, lineThickness);
+    // filRevLowerSend line
+    g.setColour(delayLowerSendColour);
+    Line<float> delayLowerLineV (Point<float> (pluginWidth-fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5),
+                               Point<float> (pluginWidth-fxWidth, pluginHeight-footerHeight*0.5-lineThickness*0.5));
+    g.drawLine (delayLowerLineV, lineThickness);
+    Line<float> delayLowerLineH (Point<float> (pluginWidth-fxWidth+lineThickness*0.5, pluginHeight-footerHeight*0.5),
+                                 Point<float> (pluginWidth-fxWidth*2.5+lineThickness*0.5, pluginHeight-footerHeight*0.5+lineThickness*1.5));
+    g.drawLine (delayLowerLineH, lineThickness);
     
     // JOIN FINAL LINE
     g.setColour(joinFinalSendColour);
