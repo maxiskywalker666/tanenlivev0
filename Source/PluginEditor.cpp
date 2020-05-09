@@ -36,28 +36,28 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     
     // SEND BUTTON
     //cutoffSendButton.setLookAndFeel(&sendLook);
-    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(cutoffSendButton);
     //resSendButton.setLookAndFeel(&sendLook);
-    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(resSendButton);
     //reverbDryWetSendButton.setLookAndFeel(&sendLook);
-    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(reverbWetSendButton);
     //reverbSizeSendButton.setLookAndFeel(&sendLook);
-    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(reverbSizeSendButton);
     //delayDryWetSendButton.setLookAndFeel(&sendLook);
-    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(delayDryWetSendButton);
     //delayDepthSendButton.setLookAndFeel(&sendLook);
-    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(delayDepthSendButton);
     //delayRateSendButton.setLookAndFeel(&sendLook);
-    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(delayRateSendButton);
     //delayFeedbackSendButton.setLookAndFeel(&sendLook);
-    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
+    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
     addAndMakeVisible(delayFeedbackSendButton);
     
     auto& params = processor.getParameters();
@@ -113,12 +113,18 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mReverbDrySlider.setRange(reverbDryParameter->range.start, reverbDryParameter->range.end);
     mReverbDrySlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
     mReverbDrySlider.setValue(*reverbDryParameter);
-    mReverbDrySlider.setColour(juce::Slider::trackColourId, Colours::lightsteelblue);
+    mReverbDrySlider.setColour(juce::Slider::trackColourId, lightGrey);
+    mReverbDrySlider.setColour(juce::Slider::thumbColourId, lightBlue);
     mReverbDrySlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 100, mReverbDrySlider.getTextBoxHeight());
     mReverbDrySlider.onValueChange = [this, reverbDryParameter] { *reverbDryParameter = mReverbDrySlider.getValue(); };
     mReverbDrySlider.onDragStart = [reverbDryParameter] { reverbDryParameter->beginChangeGesture(); };
     mReverbDrySlider.onDragEnd = [reverbDryParameter] { reverbDryParameter->endChangeGesture(); };
     addAndMakeVisible(mReverbDrySlider);
+    // reverb dry label
+    mReverbDryLabel.setJustificationType(Justification::centred);
+    mReverbDryLabel.setText("DRY", dontSendNotification);
+    //mReverbDryLabel.setSize(5, 3);
+    addAndMakeVisible(mReverbDryLabel);
     
     // REVERB WET
     AudioParameterFloat* reverbWetParameter = (AudioParameterFloat*)params.getUnchecked(4);
@@ -202,17 +208,22 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mDelayRateLabel.setText("RATE", dontSendNotification);
     addAndMakeVisible(mDelayRateLabel);
     
-    // PHASEOFFSET
-    AudioParameterFloat* phaseParameter = (AudioParameterFloat*)params.getUnchecked(14);
-    mDelayPhaseOffsetSlider.setRange(phaseParameter->range.start, phaseParameter->range.end);
-    mDelayPhaseOffsetSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
-    mDelayPhaseOffsetSlider.setValue(*phaseParameter);
-    mDelayPhaseOffsetSlider.setColour(juce::Slider::trackColourId, Colours::mediumpurple);
-    mDelayPhaseOffsetSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-    mDelayPhaseOffsetSlider.onValueChange = [this, phaseParameter] { *phaseParameter = mDelayPhaseOffsetSlider.getValue(); };
-    mDelayPhaseOffsetSlider.onDragStart = [phaseParameter] { phaseParameter->beginChangeGesture(); };
-    mDelayPhaseOffsetSlider.onDragEnd = [phaseParameter] { phaseParameter->endChangeGesture(); };
-    //addAndMakeVisible(mDelayPhaseOffsetSlider);
+    // XTREM FEEDBACK
+    AudioParameterFloat* xTremFeedbackParameter = (AudioParameterFloat*)params.getUnchecked(14);
+    mXTremFeedbackSlider.setRange(xTremFeedbackParameter->range.start, xTremFeedbackParameter->range.end);
+    mXTremFeedbackSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
+    mXTremFeedbackSlider.setValue(*xTremFeedbackParameter);
+    mXTremFeedbackSlider.setColour(juce::Slider::trackColourId, lightGrey);
+    mXTremFeedbackSlider.setColour(juce::Slider::thumbColourId, lightBlue);
+    mXTremFeedbackSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    mXTremFeedbackSlider.onValueChange = [this, xTremFeedbackParameter] { *xTremFeedbackParameter = mXTremFeedbackSlider.getValue(); };
+    mXTremFeedbackSlider.onDragStart = [xTremFeedbackParameter] { xTremFeedbackParameter->beginChangeGesture(); };
+    mXTremFeedbackSlider.onDragEnd = [xTremFeedbackParameter] { xTremFeedbackParameter->endChangeGesture(); };
+    addAndMakeVisible(mXTremFeedbackSlider);
+    // x trem feedback label
+    mXTremFeedbackLabel.setJustificationType(Justification::centred);
+    mXTremFeedbackLabel.setText("X-TREM FEEDBACK", dontSendNotification);
+    addAndMakeVisible(mXTremFeedbackLabel);
     
     // FEEDBACK
     AudioParameterFloat* feedbackParameter = (AudioParameterFloat*)params.getUnchecked(15);
@@ -263,10 +274,10 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     AudioParameterFloat* perfParameter = (AudioParameterFloat*)params.getUnchecked(10);
     mPerfSlider.setRange(perfParameter->range.start, perfParameter->range.end);
     mPerfSlider.setSliderStyle(Slider::SliderStyle::LinearBarVertical);
-    mPerfSlider.setAlpha(0.5);
+    //mPerfSlider.setAlpha(perfOpacity);
     mPerfSlider.setValue(*perfParameter);
     //mPerfSlider.setLookAndFeel(&sliderBarLook);
-    mPerfSlider.setColour(juce::Slider::trackColourId, Colours::red);
+    mPerfSlider.setColour(juce::Slider::trackColourId, sendingLinesColour);
     addAndMakeVisible(mPerfSlider);
     
     mPerfSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
@@ -583,8 +594,10 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
 //==============================================================================
 void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    g.setColour (Colours::white);
+    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    getLookAndFeel().setColour(juce::ColourSelector::backgroundColourId , almostBlack);
+    g.fillAll(darkDarkGrey);
+    g.setColour (fontColour);
     g.setFont (fontSize);
     g.drawFittedText ("TANEN LIVE MACHINE", getLocalBounds(), Justification::centredBottom, 1);
     
@@ -646,7 +659,10 @@ void TanenLiveV0AudioProcessorEditor::resized()
     
     // REVERB
     // dry slider
-    mReverbDrySlider.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
+    auto reverbDryZone = header.removeFromLeft(fxWidth);
+    mReverbDrySlider.setBounds(reverbDryZone.removeFromTop(headerHeight*0.66).reduced(headerMargin));
+    // dry label
+    mReverbDryLabel.setBounds(reverbDryZone);
     // wet slider
     auto reverbWetZone = reverbZone.removeFromTop(itemSize);
     mReverbWetSlider.setBounds(reverbWetZone.reduced(itemMargin));
@@ -664,8 +680,11 @@ void TanenLiveV0AudioProcessorEditor::resized()
     
     // DELAY
     // phase offset slider
-    auto performanceHeaderZone = header.removeFromLeft(fxWidth);
-    mDelayPhaseOffsetSlider.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
+    header.removeFromLeft(fxWidth);
+    auto xTremZone = header.removeFromLeft(fxWidth);
+    mXTremFeedbackSlider.setBounds(xTremZone.removeFromTop(headerHeight*0.66).reduced(headerMargin));
+    // dry label
+    mXTremFeedbackLabel.setBounds(xTremZone);
     // drywet slider
     auto delayDryWetZone = delayZoneLeft.removeFromTop(itemSize);
     mDelayDryWetSlider.setBounds(delayDryWetZone.reduced(itemMargin));
@@ -697,6 +716,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     delayFeedbackSendButton.setBounds(delayZoneRight.removeFromTop(sendSize).reduced(sendMargin));
     
     // PERFORMANCE
+    performanceZone.removeFromTop(sendMargin);
     mPerfSlider.setBounds(performanceZone);
     mImageComponent.setBounds(performanceZone.reduced(0, imageMargin));
 

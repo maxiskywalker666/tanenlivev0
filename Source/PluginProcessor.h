@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h" // include juce_core that include juce_UniTest
 // #include "/Applications/JUCE/modules/juce_core/unit_tests/juce_UnitTest.h"
-#define MAX_DELAY_TIME 2
+//#define MAX_DELAY_TIME 2
 
 //==============================================================================
 /**
@@ -62,9 +62,10 @@ public:
     void testSendFx();
     void linkPerformance();
     float lin_interp(float sample_x, float sample_x1, float inPhase);
-    
+
     // TODO TEST
     static void runTest();
+
 
 private:
     // FILTER PARAMETERS
@@ -86,7 +87,7 @@ private:
     AudioParameterFloat* mDelayDryWetParameter; // 11
     AudioParameterFloat* mDelayDepthParameter;
     AudioParameterFloat* mDelayRateParameter;
-    AudioParameterFloat* mDelayPhaseOffsetParameter;
+    AudioParameterFloat* mXTremFeedbackParameter;
     AudioParameterFloat* mDelayFeedbackParameter; // 15
     // DELAY SEND PARAMETERS
     AudioParameterBool* mDelayDryWetSendParameter; // 16
@@ -94,9 +95,9 @@ private:
     AudioParameterBool* mDelayRateSendParameter; // 18
     AudioParameterBool* mDelayFeedbackSendParameter; //19
 
-
     // VARIABLES
     float lastSampleRate;
+    int maxDelayTime = 2;
     // Filter objects
     dsp::ProcessorDuplicator<dsp::IIR::Filter <float> , dsp::IIR::Coefficients <float>> iIRFilter;
     float freqMin;
@@ -119,6 +120,7 @@ private:
     float rateMin;
     float rateMax;
     float feedbackMax;
+    float xTremFeedbackMax;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessor)
 };

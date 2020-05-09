@@ -42,28 +42,29 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     mLFOPhase = 0;
     rateMin = 0.001f;
     rateMax = 50.f;
+    xTremFeedbackMax = 0.1f;
     feedbackMax = 0.98f;
     // PARAMETERS INIT
-    addParameter(mFilterTypeParameter       = new AudioParameterInt  ("filterType", "FilterType", 0, 1, 0));               // 0
-    addParameter(mFilterCutoffParameter     = new AudioParameterFloat("cutoff", "Cutoff", freqMin, freqMax, 20000.f));     // 1
-    addParameter(mFilterResParameter        = new AudioParameterFloat("resonance", "Resonance", resMin, resMax, 1.f));     // 2
-    addParameter(mReverbDryParameter        = new AudioParameterFloat("dryReverb", "DryReverb", 0.f, 1.f, 1.f));           // 3
-    addParameter(mReverbWetParameter        = new AudioParameterFloat("wetReverb", "WetReverb", 0.f, 1.f, 0.f));           // 4
-    addParameter(mReverbSizeParameter       = new AudioParameterFloat("roomSizeReverb", "RoomSizeReverb", 0.f, 1.f, 0.f)); // 5
-    addParameter(mCutoffSendParameter       = new AudioParameterBool ("cutoffSend", "CutoffSend", false));                 // 6
-    addParameter(mResSendParameter          = new AudioParameterBool ("resSend", "ResSend", false));                       // 7
-    addParameter(mReverbWetSendParameter    = new AudioParameterBool ("reverbWetSend", "ReverbWetSend", false));           // 8
-    addParameter(mReverbSizeSendParameter   = new AudioParameterBool ("reverbSizeSend", "RevebrSizeSend", false));         // 9
-    addParameter(mPerfParameter             = new AudioParameterFloat("performance", "Performance", 0.f, 1.f, 0.f));       // 10
-    addParameter(mDelayDryWetParameter      = new AudioParameterFloat("drywet", "Dry Wet", 0.f, 1.f, 0.f));                // 11
-    addParameter(mDelayDepthParameter       = new AudioParameterFloat("depth", "Depth", 0.f, 1.f, 0.f));                   // 12
-    addParameter(mDelayRateParameter        = new AudioParameterFloat("rate", "Rate", rateMin, rateMax, rateMax));         // 13
-    addParameter(mDelayPhaseOffsetParameter = new AudioParameterFloat("phaseOffset", "Phase Offset", 0.f, 1.f, 0.f));      // 14
-    addParameter(mDelayFeedbackParameter    = new AudioParameterFloat("feedback", "Feedback", 0.f, feedbackMax, 0.f));     // 15
-    addParameter(mDelayDryWetSendParameter  = new AudioParameterBool ("delayDryWetSend", "DelayDryWetSend", false));       // 16
-    addParameter(mDelayDepthSendParameter   = new AudioParameterBool ("delayDepthSend", "DelayDepthSend", false));         // 17
-    addParameter(mDelayRateSendParameter    = new AudioParameterBool ("delayRateSend", "DelayRateSend", false));           // 18
-    addParameter(mDelayFeedbackSendParameter= new AudioParameterBool ("delayFeedbackSend", "DelayFeedbackSend", false));   // 19
+    addParameter(mFilterTypeParameter       = new AudioParameterInt  ("filterType", "FilterType", 0, 1, 0));                           // 0
+    addParameter(mFilterCutoffParameter     = new AudioParameterFloat("cutoff", "Cutoff", freqMin, freqMax, 20000.f));                 // 1
+    addParameter(mFilterResParameter        = new AudioParameterFloat("resonance", "Resonance", resMin, resMax, 1.f));                 // 2
+    addParameter(mReverbDryParameter        = new AudioParameterFloat("dryReverb", "DryReverb", 0.f, 1.f, 1.f));                       // 3
+    addParameter(mReverbWetParameter        = new AudioParameterFloat("wetReverb", "WetReverb", 0.f, 1.f, 0.f));                       // 4
+    addParameter(mReverbSizeParameter       = new AudioParameterFloat("roomSizeReverb", "RoomSizeReverb", 0.f, 1.f, 0.f));             // 5
+    addParameter(mCutoffSendParameter       = new AudioParameterBool ("cutoffSend", "CutoffSend", false));                             // 6
+    addParameter(mResSendParameter          = new AudioParameterBool ("resSend", "ResSend", false));                                   // 7
+    addParameter(mReverbWetSendParameter    = new AudioParameterBool ("reverbWetSend", "ReverbWetSend", false));                       // 8
+    addParameter(mReverbSizeSendParameter   = new AudioParameterBool ("reverbSizeSend", "RevebrSizeSend", false));                     // 9
+    addParameter(mPerfParameter             = new AudioParameterFloat("performance", "Performance", 0.f, 1.f, 0.f));                   // 10
+    addParameter(mDelayDryWetParameter      = new AudioParameterFloat("drywet", "Dry Wet", 0.f, 1.f, 0.f));                            // 11
+    addParameter(mDelayDepthParameter       = new AudioParameterFloat("depth", "Depth", 0.f, 1.f, 0.f));                               // 12
+    addParameter(mDelayRateParameter        = new AudioParameterFloat("rate", "Rate", rateMin, rateMax, rateMax));                     // 13
+    addParameter(mXTremFeedbackParameter    = new AudioParameterFloat("xTremFeedback", "XTrem Feedback", 0.f, xTremFeedbackMax, 0.f)); // 14
+    addParameter(mDelayFeedbackParameter    = new AudioParameterFloat("feedback", "Feedback", 0.f, feedbackMax, 0.f));                 // 15
+    addParameter(mDelayDryWetSendParameter  = new AudioParameterBool ("delayDryWetSend", "DelayDryWetSend", false));                   // 16
+    addParameter(mDelayDepthSendParameter   = new AudioParameterBool ("delayDepthSend", "DelayDepthSend", false));                     // 17
+    addParameter(mDelayRateSendParameter    = new AudioParameterBool ("delayRateSend", "DelayRateSend", false));                       // 18
+    addParameter(mDelayFeedbackSendParameter= new AudioParameterBool ("delayFeedbackSend", "DelayFeedbackSend", false));               // 19
     //TanenLiveV0AudioProcessor::runTest();
 }
 
@@ -165,7 +166,7 @@ void TanenLiveV0AudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // DELAY
     mLFOPhase = 0;
     mDelayTimeSmoothed = 1;
-    mCircularBufferLength = sampleRate * MAX_DELAY_TIME;
+    mCircularBufferLength = sampleRate * maxDelayTime;
     if (mCircularBufferLeft != nullptr ) {
        delete [] mCircularBufferLeft;
        mCircularBufferLeft = nullptr;
@@ -300,8 +301,6 @@ void TanenLiveV0AudioProcessor::linkPerformance() {
     }
     if (*mDelayRateSendParameter) {
         *mDelayRateParameter = (float) (1 - *mPerfParameter) * rateMax;
-        // TODO Reverse Time : if (bool) {
-        // *mDelayRateParameter = (float) (*mPerfParameter) * rateMax;
     }
     if (*mDelayFeedbackSendParameter) {
         *mDelayFeedbackParameter = (float) *mPerfParameter * feedbackMax;
@@ -337,7 +336,7 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     DBG("DRY WET: " << *mDelayDryWetParameter);
     DBG("DEPTH: " << *mDelayDepthParameter);
     DBG("RATE: " << *mDelayRateParameter);
-    DBG("PHASE OFFSET: " << *mDelayPhaseOffsetParameter);
+    DBG("XTREM FEEDBACK: " << *mXTremFeedbackParameter);
     DBG("FEEDBACK: " << *mDelayFeedbackParameter);
     
     float* leftChannel = buffer.getWritePointer(0);
@@ -378,8 +377,8 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
         float delay_sample_left = lin_interp((float) mCircularBufferLeft[readHead_x], (float) mCircularBufferLeft[readHead_x1], readHeadFloat);
         float delay_sample_right = lin_interp((float) mCircularBufferRight[readHead_x], (float) mCircularBufferRight[readHead_x1], readHeadFloat);
         
-        mFeedbackLeft = delay_sample_left* *mDelayFeedbackParameter;
-        mFeedbackRight = delay_sample_right* *mDelayFeedbackParameter;
+        mFeedbackLeft = delay_sample_left* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
+        mFeedbackRight = delay_sample_right* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
         
         mCircularBufferWriteHead++;
 

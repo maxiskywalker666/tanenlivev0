@@ -29,10 +29,10 @@ public:
             auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
             
             // fill
-            g.setColour (Colours::grey);
+            g.setColour (Colour(84, 83, 83));
             g.fillEllipse (rx, ry, rw, rw);
             // outline
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.drawEllipse (rx, ry, rw, rw, 3.0f);
             // pointer
             Path p;
@@ -41,7 +41,7 @@ public:
             p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
             p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
             // pointer
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.fillPath (p);
         }
 };
@@ -64,10 +64,10 @@ public:
             auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
             
             // fill
-            g.setColour (Colours::lightsteelblue);
+            g.setColour (Colour(61, 61, 61));
             g.fillEllipse (rx, ry, rw, rw);
             // outline
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.drawEllipse (rx, ry, rw, rw, 3.0f);
             // pointer
             Path p;
@@ -76,7 +76,7 @@ public:
             p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
             p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
             // pointer
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.fillPath (p);
         }
 };
@@ -99,10 +99,10 @@ public:
             auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
             
             // fill
-            g.setColour (Colours::mediumpurple);
+            g.setColour (Colour(39, 39, 39));
             g.fillEllipse (rx, ry, rw, rw);
             // outline
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.drawEllipse (rx, ry, rw, rw, 3.0f);
             // pointer
             Path p;
@@ -111,7 +111,7 @@ public:
             p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
             p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
             // pointer
-            g.setColour (Colours::black);
+            g.setColour (Colour(182, 193, 215));
             g.fillPath (p);
         }
 };
@@ -137,8 +137,8 @@ public:
             buttonArea.translate (offset, offset);
             g.setColour (colour);
             g.fillRect (buttonArea);
-
         }
+    
     void drawButtonText (Graphics& g, TextButton& button, bool isMouseOverButton, bool isButtonDown) override
         {
             auto font = getTextButtonFont (button, button.getHeight());
@@ -209,12 +209,12 @@ private:
     TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
-    Slider mReverbDrySlider;
     Slider mReverbWetSlider;
     Label mReverbWetLabel;
     Slider mReverbSizeSlider;
     Label mReverbSizeLabel;
-    Slider mDrySlider; // horizontale slider in the header
+    Slider mReverbDrySlider; // horizontal slider in the header
+    Label mReverbDryLabel;
     TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
@@ -230,9 +230,8 @@ private:
     TextButton delayDepthSendButton{"BYPASSED"};
     TextButton delayRateSendButton{"BYPASSED"};
     TextButton delayFeedbackSendButton{"BYPASSED"};
-    // TODO Replace useless PhaseOffsetSlider with Checkbox ReverseTime
-    Slider mDelayPhaseOffsetSlider;
-    Label mDelayPhaseOffsetLabel;
+    Slider mXTremFeedbackSlider;
+    Label mXTremFeedbackLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
     
@@ -255,8 +254,20 @@ private:
     float fxWidth = 120.f;
     float lineThickness = 4.f;
     
-    Colour bypassedLinesColour     = Colours::white.withAlpha(0.5f);
-    Colour sendingLinesColour      = Colours::red.withAlpha(0.5f);
+    Colour goodRed                 = Colour(220, 19, 19);
+    Colour almostBlack             = Colour(18, 18, 18);
+    Colour fontColour              = Colours::white;
+    Colour lightGrey               = Colour(84, 83, 83);
+    Colour darkDarkGrey            = Colour(29, 29, 29);
+    Colour grey                    = Colour(61, 61, 61);
+    Colour darkGrey                = Colour(39, 39, 39);
+    //Colour lightBlue               = Colour(86, 127, 148);
+    Colour lightBlue               = Colour(182, 193, 215);
+    
+    Colour backgroundColor         = almostBlack;
+    Colour bypassedLinesColour     = lightGrey;
+    Colour sendingLinesColour      = goodRed.withAlpha(perfOpacity); // RED
+    
     // ALL SENDING LINES
     // upper left
     Colour filterCutoffSendColour  = bypassedLinesColour;
