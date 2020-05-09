@@ -292,16 +292,16 @@ void TanenLiveV0AudioProcessor::linkPerformance() {
     if (*mReverbSizeSendParameter) {
         *mReverbSizeParameter = (float) *mPerfParameter;
     }
-    if (*mDelayDryWetParameter) {
+    if (*mDelayDryWetSendParameter) {
         *mDelayDryWetParameter = (float) *mPerfParameter;
     }
-    if (*mDelayDepthParameter) {
+    if (*mDelayDepthSendParameter) {
         *mDelayDepthParameter = (float) *mPerfParameter;
     }
-    if (*mDelayRateParameter) {
+    if (*mDelayRateSendParameter) {
         *mDelayRateParameter = (float) *mPerfParameter * rateMax;
     }
-    if (*mDelayFeedbackParameter) {
+    if (*mDelayFeedbackSendParameter) {
         *mDelayFeedbackParameter = (float) *mPerfParameter * feedbackMax;
     }
     std::cout << "\n CutoffParameter : ";
