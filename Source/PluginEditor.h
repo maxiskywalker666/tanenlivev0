@@ -234,7 +234,25 @@ private:
     Label mDelayPhaseOffsetLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
+    
+    // GUI VARIABLES
+    float fontSize = 15.f;
+    float pluginWidth = 600.f;
+    float pluginHeight = 450.f;
+    float headerHeight = 40.f;
+    float footerHeight = 60.f;
+    
+    float itemMargin = 15.f;
+    float imageMargin = 100.f;
+    float headerMargin = 3.f;
+    float itemSize = 125.f;
+    float sendSize = 50.f;
+    float sendMargin = 10.f;
+    float labelMargin = 15.f;
+    
     float perfOpacity= 0.5f;
+    float fxWidth = 120.f;
+    float lineThickness = 4.f;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

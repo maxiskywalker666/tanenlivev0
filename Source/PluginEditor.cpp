@@ -17,12 +17,12 @@
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    addAndMakeVisible(headerFrame);
+    /*addAndMakeVisible(headerFrame);
     addAndMakeVisible(footerFrame);
     addAndMakeVisible(filterFrame);
     addAndMakeVisible(reverbFrame);
     addAndMakeVisible(delayFrame);
-    addAndMakeVisible(performanceFrame);
+    addAndMakeVisible(performanceFrame);*/
     // IMAGE
     auto t1000Image = ImageCache::getFromMemory(BinaryData::T1000_png, BinaryData::T1000_pngSize);
     if (!t1000Image.isNull())
@@ -32,7 +32,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mImageComponent);
     
     // WINDOW SIZE
-    setSize (600, 450);
+    setSize (pluginWidth, pluginHeight);
     
     // SEND BUTTON
     //cutoffSendButton.setLookAndFeel(&sendLook);
@@ -383,21 +383,82 @@ void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::white);
-    g.setFont (15.0f);
+    g.setFont (fontSize);
     g.drawFittedText ("TANEN LIVE MACHINE", getLocalBounds(), Justification::centredBottom, 1);
+    
+    g.setColour(Colours::red.withAlpha(0.5f));
+    
+    // FILTER LINES
+    // Vertical lines
+    Line<float> filterFirstLineV (Point<float> (fxWidth*0.5, headerHeight+itemSize+sendSize-sendMargin),
+                                 Point<float> (fxWidth*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (filterFirstLineV, lineThickness);
+    Line<float> filterSndLineV (Point<float> (fxWidth*0.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
+                               Point<float> (fxWidth*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (filterSndLineV, lineThickness);
+    // Horizontal lines
+    Line<float> filterFirstLineH (Point<float> (fxWidth*0.5-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
+                                 Point<float> (fxWidth-lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (filterFirstLineH, lineThickness);
+    Line<float> filterSndLineH (Point<float> (fxWidth*0.5-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
+                               Point<float> (fxWidth-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (filterSndLineH, lineThickness);
+    
+    // REVERB LINES
+    // Vertical lines
+    Line<float> reverbFirstLineV (Point<float> (fxWidth*1.5, headerHeight+itemSize+sendSize-sendMargin),
+                                 Point<float> (fxWidth*1.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (reverbFirstLineV, lineThickness);
+    Line<float> reverbSndLineV (Point<float> (fxWidth*1.5, headerHeight+sendMargin+(itemSize+sendSize-sendMargin)*2),
+                               Point<float> (fxWidth*1.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (reverbSndLineV, lineThickness);
+    // Horizontal lines
+    Line<float> reverbFirstLineH (Point<float> (fxWidth*1.5+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin+lineThickness*0.5),
+                                 Point<float> (fxWidth+lineThickness*0.5, headerHeight+itemSize+sendSize+sendMargin));
+    g.drawLine (reverbFirstLineH, lineThickness);
+    Line<float> reverbSndLineH (Point<float> (fxWidth*1.5+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
+                               Point<float> (fxWidth+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
+    g.drawLine (reverbSndLineH , lineThickness);
+    
+    // FILTER + REVERB
+    // Vertical lines
+    Line<float> filRevFirstLineV (Point<float> (fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
+                                 Point<float> (fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5));
+    g.drawLine (filRevFirstLineV, lineThickness);
+    Line<float> filRevSndLineV (Point<float> (fxWidth, headerHeight+sendMargin+(itemSize+sendSize)*2-lineThickness*0.5),
+                               Point<float> (fxWidth, pluginHeight-footerHeight*0.5-lineThickness*0.5));
+    g.drawLine (filRevSndLineV, lineThickness);
+    // Horizontal line
+    Line<float> filRevLineH (Point<float> (fxWidth-lineThickness*0.5, pluginHeight-footerHeight*0.5),
+                                 Point<float> (fxWidth*2.5-lineThickness*0.5, pluginHeight-footerHeight*0.5+lineThickness*1.5));
+    g.drawLine (filRevLineH, lineThickness);
+    
+    // JOIN FINAL LINE
+    Line<float> joinFinalLineV (Point<float> (fxWidth*2.5, pluginHeight-footerHeight*0.5+lineThickness*2),
+                                 Point<float> (fxWidth*2.5, pluginHeight-footerHeight));
+    g.drawLine (joinFinalLineV, lineThickness);
+
 }
 
 void TanenLiveV0AudioProcessorEditor::resized()
 {
     //setSize (600 width, 450 height);
     auto area = getLocalBounds();
- 
-    auto headerHeight = 40;
-    auto footerHeight = 60;
+    //auto headerHeight = 40;
+    //auto footerHeight = 60;
+    // zone in zone :
+    /*auto itemMargin = 15;
+    auto imageMargin = 100;
+    auto headerMargin = 3;
+    auto itemSize = 125;
+    auto sendSize = 50;
+    auto sendMargin = 10;
+    auto labelMargin = 15;*/
+    
     auto header = area.removeFromTop(headerHeight);
     auto footer = area.removeFromBottom(footerHeight);
  
-    auto fxWidth = 120; // height = 450 - (40+60) = 350
+    //auto fxWidth = 120; // height = 450 - (40+60) = 350
     auto filterZone = area.removeFromLeft (fxWidth);
     auto reverbZone = area.removeFromLeft (fxWidth);
     auto performanceZone = area.removeFromLeft (fxWidth);
@@ -412,14 +473,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     reverbFrame.setBounds(reverbZone);
     delayFrame.setBounds(delayZone);
     performanceFrame.setBounds(performanceZone);
-    // zone in zone :
-    auto itemMargin = 15;
-    auto imageMargin = 100;
-    auto headerMargin = 3;
-    auto itemSize = 125;
-    auto sendSize = 50;
-    auto sendMargin = 10;
-    auto labelMargin = 15;
+
     
     // FILTER
     mFilterType.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin));
