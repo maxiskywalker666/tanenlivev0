@@ -180,6 +180,7 @@ public:
     void sendFx(Button* button);
     void bypassFx(Button* button);
     void buttonClicked(Button* button) override;
+    void drawSendLines(Graphics&);
 
 private:
     // ZONES
@@ -253,6 +254,24 @@ private:
     float perfOpacity= 0.5f;
     float fxWidth = 120.f;
     float lineThickness = 4.f;
+    
+    Colour bypassedLinesColour = Colours::white.withAlpha(0.5f);
+    Colour sendingLinesColour = Colours::red.withAlpha(0.5f);
+    // 8 SEND BUTTONS
+    Colour filterCutoffSendColour  = Colours::white.withAlpha(0.5f);
+    Colour reverbWetSendColour     = Colours::white.withAlpha(0.5f);
+    Colour filRevUpperSendColour   = Colours::white.withAlpha(0.5f);
+
+    Colour filterResSendColour     = Colours::white.withAlpha(0.5f);
+    Colour reverbSizeSendColour    = Colours::white.withAlpha(0.5f);
+    Colour filRevLowerSendColour   = Colours::white.withAlpha(0.5f);
+
+    Colour joinFinalSendColour     = Colours::white.withAlpha(0.5f);
+    
+    Colour delayDryWetSendColour   = Colours::white.withAlpha(0.5f);
+    Colour delayDepthSendColour    = Colours::white.withAlpha(0.5f);
+    Colour delayRateSendColour     = Colours::white.withAlpha(0.5f);
+    Colour delayFeedbackSendColour = Colours::white.withAlpha(0.5f);
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };
