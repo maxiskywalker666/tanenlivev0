@@ -57,7 +57,7 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     addParameter(mPerfParameter             = new AudioParameterFloat("performance", "Performance", 0.f, 1.f, 0.f));       // 10
     addParameter(mDelayDryWetParameter      = new AudioParameterFloat("drywet", "Dry Wet", 0.f, 1.f, 0.f));                // 11
     addParameter(mDelayDepthParameter       = new AudioParameterFloat("depth", "Depth", 0.f, 1.f, 0.f));                   // 12
-    addParameter(mDelayRateParameter        = new AudioParameterFloat("rate", "Rate", rateMin, rateMax, 10.f));            // 13
+    addParameter(mDelayRateParameter        = new AudioParameterFloat("rate", "Rate", rateMin, rateMax, rateMax));         // 13
     addParameter(mDelayPhaseOffsetParameter = new AudioParameterFloat("phaseOffset", "Phase Offset", 0.f, 1.f, 0.f));      // 14
     addParameter(mDelayFeedbackParameter    = new AudioParameterFloat("feedback", "Feedback", 0.f, feedbackMax, 0.f));     // 15
     addParameter(mDelayDryWetSendParameter  = new AudioParameterBool ("delayDryWetSend", "DelayDryWetSend", false));       // 16
@@ -411,26 +411,26 @@ AudioProcessorEditor* TanenLiveV0AudioProcessor::createEditor()
 //==============================================================================
 void TanenLiveV0AudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    std::unique_ptr<XmlElement> xml(new XmlElement("TanenLiveV0"));
+    /*std::unique_ptr<XmlElement> xml(new XmlElement("TanenLiveV0"));
     xml->setAttribute("DelayDryWet", *mDelayDryWetParameter);
     xml->setAttribute("DelayDepth", *mDelayDepthParameter);
     xml->setAttribute("DelayRate", *mDelayRateParameter);
     xml->setAttribute("DelayPhaseOffset", *mDelayPhaseOffsetParameter);
     xml->setAttribute("DelayFeedback", *mDelayFeedbackParameter);
     
-    copyXmlToBinary(*xml, destData);
+    copyXmlToBinary(*xml, destData);*/
 }
 
 void TanenLiveV0AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    /*std::unique_ptr<XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     if (xml.get() != nullptr && xml->hasTagName("TanenLiveV0")) {
         *mDelayDryWetParameter = xml->getDoubleAttribute("DelayDryWet");
         *mDelayDepthParameter = xml->getDoubleAttribute("DelayDepth");
         *mDelayRateParameter = xml->getDoubleAttribute("DelayRate");
         *mDelayPhaseOffsetParameter = xml->getDoubleAttribute("DelayPhaseOffset");
         *mDelayFeedbackParameter = xml->getDoubleAttribute("DelayFeedback");
-    }
+    }*/
 }
 
 //==============================================================================

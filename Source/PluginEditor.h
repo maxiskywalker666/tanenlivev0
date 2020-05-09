@@ -229,10 +229,12 @@ private:
     TextButton delayDepthSendButton{"BYPASSED"};
     TextButton delayRateSendButton{"BYPASSED"};
     TextButton delayFeedbackSendButton{"BYPASSED"};
+    // TODO Replace useless PhaseOffsetSlider with Checkbox ReverseTime
     Slider mDelayPhaseOffsetSlider;
     Label mDelayPhaseOffsetLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
+    float perfOpacity= 0.5f;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessorEditor)
 };

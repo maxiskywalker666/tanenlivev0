@@ -36,28 +36,28 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     
     // SEND BUTTON
     //cutoffSendButton.setLookAndFeel(&sendLook);
-    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(cutoffSendButton);
     //resSendButton.setLookAndFeel(&sendLook);
-    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(resSendButton);
     //reverbDryWetSendButton.setLookAndFeel(&sendLook);
-    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(reverbWetSendButton);
     //reverbSizeSendButton.setLookAndFeel(&sendLook);
-    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(reverbSizeSendButton);
     //delayDryWetSendButton.setLookAndFeel(&sendLook);
-    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(delayDryWetSendButton);
     //delayDepthSendButton.setLookAndFeel(&sendLook);
-    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(delayDepthSendButton);
     //delayRateSendButton.setLookAndFeel(&sendLook);
-    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(delayRateSendButton);
     //delayFeedbackSendButton.setLookAndFeel(&sendLook);
-    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red);
+    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, Colours::red.withAlpha(perfOpacity));
     addAndMakeVisible(delayFeedbackSendButton);
     
     auto& params = processor.getParameters();
@@ -212,7 +212,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     mDelayPhaseOffsetSlider.onValueChange = [this, phaseParameter] { *phaseParameter = mDelayPhaseOffsetSlider.getValue(); };
     mDelayPhaseOffsetSlider.onDragStart = [phaseParameter] { phaseParameter->beginChangeGesture(); };
     mDelayPhaseOffsetSlider.onDragEnd = [phaseParameter] { phaseParameter->endChangeGesture(); };
-    addAndMakeVisible(mDelayPhaseOffsetSlider);
+    //addAndMakeVisible(mDelayPhaseOffsetSlider);
     
     // FEEDBACK
     AudioParameterFloat* feedbackParameter = (AudioParameterFloat*)params.getUnchecked(15);
@@ -263,6 +263,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     AudioParameterFloat* perfParameter = (AudioParameterFloat*)params.getUnchecked(10);
     mPerfSlider.setRange(perfParameter->range.start, perfParameter->range.end);
     mPerfSlider.setSliderStyle(Slider::SliderStyle::LinearBarVertical);
+    mPerfSlider.setAlpha(0.5);
     mPerfSlider.setValue(*perfParameter);
     //mPerfSlider.setLookAndFeel(&sliderBarLook);
     mPerfSlider.setColour(juce::Slider::trackColourId, Colours::red);
