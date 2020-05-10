@@ -186,26 +186,27 @@ private:
     float filterTypeMargin = 5.f;
     float itemSize = 125.f;
     float sendSize = 50.f;
+    //float sendMargin = 10.f;
     float sendMargin = 10.f;
     float labelMargin = 15.f;
     
-    float perfOpacity= 0.5f;
+    float perfOpacity= 0.7f;
     float fxWidth = 120.f;
     float lineThickness = 4.f;
     
     // COLOURS
-    Colour goodRed                 = Colour(220, 19, 19);
+    //Colour goodRed                 = Colour(220, 19, 19);
     Colour almostBlack             = Colour(18, 18, 18);
     Colour fontColour              = Colours::white;
     Colour lightGrey               = Colour(84, 83, 83);
     Colour darkDarkGrey            = Colour(29, 29, 29);
     Colour grey                    = Colour(61, 61, 61);
-    Colour darkGrey                = Colour(39, 39, 39);
+    Colour darkGrey                = Colour(43, 43, 43);
     Colour lightBlue               = Colour(182, 193, 215);
     
     Colour backgroundColor         = almostBlack;
     Colour bypassedLinesColour     = lightGrey;
-    Colour sendingLinesColour      = goodRed.withAlpha(perfOpacity); // RED
+    Colour sendingLinesColour      = lightBlue.withAlpha(perfOpacity); // NOW BLUE
     
     
     // ALL SENDING LINES
