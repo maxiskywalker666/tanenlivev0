@@ -2,9 +2,13 @@
   ==============================================================================
 
     This file was auto-generated!
-
     It contains the basic framework code for a JUCE plugin processor.
-
+    
+    Plugin developed by Maxime Boiron starting from March 2020
+    Name : Tanen Live Machine
+    Version : V0
+    GitHub project: https://github.com/maxiskywalker666/tanenlivev0.git
+ 
   ==============================================================================
 */
 

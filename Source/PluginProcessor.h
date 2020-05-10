@@ -2,17 +2,18 @@
   ==============================================================================
 
     This file was auto-generated!
-
     It contains the basic framework code for a JUCE plugin processor.
+ 
+    Plugin developed by Maxime Boiron starting from March 2020
+    Name : Tanen Live Machine
+    Version : V0
+    GitHub project: https://github.com/maxiskywalker666/tanenlivev0.git
 
   ==============================================================================
 */
 
 #pragma once
-
-#include "../JuceLibraryCode/JuceHeader.h" // include juce_core that include juce_UniTest
-// #include "/Applications/JUCE/modules/juce_core/unit_tests/juce_UnitTest.h"
-//#define MAX_DELAY_TIME 2
+#include "../JuceLibraryCode/JuceHeader.h"
 
 //==============================================================================
 /**

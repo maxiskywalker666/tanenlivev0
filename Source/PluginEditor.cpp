@@ -2,8 +2,12 @@
   ==============================================================================
 
     This file was auto-generated!
-
     It contains the basic framework code for a JUCE plugin editor.
+ 
+    Plugin developed by Maxime Boiron starting from March 2020
+    Name : Tanen Live Machine
+    Version : V0
+    GitHub project: https://github.com/maxiskywalker666/tanenlivev0.git
 
   ==============================================================================
 */
@@ -13,14 +17,15 @@
 
 //==============================================================================
 
+/** This constructor contains all the initialisation for the UI to be linked with the processor and to be ready for display */
 
 TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0AudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    // WINDOW SIZE
+    // PLUGIN SIZE
     setSize (pluginWidth, pluginHeight);
     
-    // IMAGE
+    // PERFORMANCE BACKGROUND IMAGE
     auto t1000Image = ImageCache::getFromMemory(BinaryData::T1000_png, BinaryData::T1000_pngSize);
     if (!t1000Image.isNull())
         t1000ImageComponent.setImage(t1000Image, RectanglePlacement::stretchToFit);
@@ -28,65 +33,24 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
         jassert(!t1000Image.isNull());
     addAndMakeVisible(t1000ImageComponent);
     
-    // SEND BUTTON
-    //cutoffSendButton.setLookAndFeel(&sendLook);
-    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    cutoffSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(cutoffSendButton);
-
-    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    resSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    resSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(resSendButton);
-    
-    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    reverbWetSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    reverbWetSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(reverbWetSendButton);
-    
-    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    reverbSizeSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(reverbSizeSendButton);
-    
-    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    delayDryWetSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(delayDryWetSendButton);
-    
-    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    delayDepthSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    delayDepthSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(delayDepthSendButton);
-    
-    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    delayRateSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    delayRateSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(delayRateSendButton);
-    
-    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
-    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
-    delayFeedbackSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
-    addAndMakeVisible(delayFeedbackSendButton);
-    
+    // GET ALL THE PARAMETERS FROM THE PROCESSOR - (TO LINK PROCESSOR & UI)
     auto& params = processor.getParameters();
     
-    // FILTER
+    
+    /* FILTER - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
+    
+    // SLIDER COLOURS
     filterLook.setSliderFillColour(lightGrey);
     filterLook.setSliderPointerColour(lightBlue);
     // TITLE
     mFilterTitle.setJustificationType(Justification::centred);
-    mFilterTitle.setText("FILTER", dontSendNotification);
+    mFilterTitle.setText(filterTitleText, dontSendNotification);
     addAndMakeVisible(mFilterTitle);
     // COMBOBOX FILTER TYPE
     AudioParameterInt* filterTypeParameter = (AudioParameterInt*)params.getUnchecked(0);
-    //mFilterType.setColour(juce::ComboBox::ColourIds::buttonColourId, almostBlack);
     mFilterType.setColour(juce::ComboBox::ColourIds::backgroundColourId, almostBlack);
-    //mFilterType.setColour(juce::ComboBox::ColourIds::outlineColourId, lightBlue);
-    //mFilterType.setColour(juce::ComboBox::ColourIds::focusedOutlineColourId, lightBlue);
-    mFilterType.addItem("LOWPASS", 1);
-    mFilterType.addItem("HIPASS", 2);
+    mFilterType.addItem(filterLowPassText, 1);
+    mFilterType.addItem(filterHiPassText, 2);
     addAndMakeVisible(mFilterType);
     mFilterType.onChange = [this, filterTypeParameter] {
         filterTypeParameter->beginChangeGesture();
@@ -109,13 +73,12 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mFilterCutoffSlider);
     // frequency label
     mFilterCutoffLabel.setJustificationType(Justification::centred);
-    mFilterCutoffLabel.setText("CUTOFF", dontSendNotification);
+    mFilterCutoffLabel.setText(filterCutoffText, dontSendNotification);
     addAndMakeVisible(mFilterCutoffLabel);
     
     // FILTER RESONANCE
     AudioParameterFloat* filterResParameter = (AudioParameterFloat*)params.getUnchecked(2);
     mFilterResSlider.setRange(filterResParameter->range.start, filterResParameter->range.end);
-    //mFilterResSlider.setBounds(0, 160, 100, 100);
     mFilterResSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mFilterResSlider.setValue(*filterResParameter);
     mFilterResSlider.setLookAndFeel(&filterLook);
@@ -126,16 +89,20 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mFilterResSlider);
     // resonance label
     mFilterResLabel.setJustificationType(Justification::centred);
-    mFilterResLabel.setText("RESONANCE", dontSendNotification);
+    mFilterResLabel.setText(filterResText, dontSendNotification);
     addAndMakeVisible(mFilterResLabel);
     
-    //REVERB
+    
+    /* REVERB - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
+    
+    // SLIDER COLOURS
     reverbLook.setSliderFillColour(grey);
     reverbLook.setSliderPointerColour(lightBlue);
     // TITLE
     mReverbTitle.setJustificationType(Justification::centred);
-    mReverbTitle.setText("REVERB", dontSendNotification);
+    mReverbTitle.setText(reverbTitleText, dontSendNotification);
     addAndMakeVisible(mReverbTitle);
+    
     // REVERB DRY
     AudioParameterFloat* reverbDryParameter = (AudioParameterFloat*)params.getUnchecked(3);
     mReverbDrySlider.setRange(reverbDryParameter->range.start, reverbDryParameter->range.end);
@@ -151,8 +118,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mReverbDrySlider);
     // reverb dry label
     mReverbDryLabel.setJustificationType(Justification::centred);
-    mReverbDryLabel.setText("DRY", dontSendNotification);
-    //mReverbDryLabel.setSize(5, 3);
+    mReverbDryLabel.setText(reverbDryText, dontSendNotification);
     addAndMakeVisible(mReverbDryLabel);
     
     // REVERB WET
@@ -168,7 +134,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mReverbWetSlider);
     // reverb wet label
     mReverbWetLabel.setJustificationType(Justification::centred);
-    mReverbWetLabel.setText("WET", dontSendNotification);
+    mReverbWetLabel.setText(reverbWetText, dontSendNotification);
     addAndMakeVisible(mReverbWetLabel);
     
     // REVERB ROOMSIZE
@@ -184,17 +150,21 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mReverbSizeSlider);
     // reverb roomsize label
     mReverbSizeLabel.setJustificationType(Justification::centred);
-    mReverbSizeLabel.setText("ROOMSIZE", dontSendNotification);
+    mReverbSizeLabel.setText(reverbSizeText, dontSendNotification);
     addAndMakeVisible(mReverbSizeLabel);
     
-    /* DELAY STARTS HERE ***************************************************************************************************************************/
+    
+    /* DELAY - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
+    
+    // SLIDER COLOURS
     delayLook.setSliderFillColour(darkGrey);
     delayLook.setSliderPointerColour(lightBlue);
     // TITLE
     mDelayTitle.setJustificationType(Justification::centred);
-    mDelayTitle.setText("DESTRUCT DELAY", dontSendNotification);
+    mDelayTitle.setText(delayTitleText, dontSendNotification);
     addAndMakeVisible(mDelayTitle);
-    // DRY WET
+    
+    // DELAY DRY WET
     AudioParameterFloat* dryWetParameter = (AudioParameterFloat*)params.getUnchecked(11);
     mDelayDryWetSlider.setRange(dryWetParameter->range.start, dryWetParameter->range.end);
     mDelayDryWetSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
@@ -207,10 +177,10 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mDelayDryWetSlider);
     // delay drywet label
     mDelayDryWetLabel.setJustificationType(Justification::centred);
-    mDelayDryWetLabel.setText("DRY/WET", dontSendNotification);
+    mDelayDryWetLabel.setText(delayDryWetText, dontSendNotification);
     addAndMakeVisible(mDelayDryWetLabel);
 
-    // DEPTH
+    // DELAY DEPTH
     AudioParameterFloat* depthParameter = (AudioParameterFloat*)params.getUnchecked(12);
     mDelayDepthSlider.setRange(depthParameter->range.start, depthParameter->range.end);
     mDelayDepthSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
@@ -223,10 +193,10 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mDelayDepthSlider);
     // delay depth label
     mDelayDepthLabel.setJustificationType(Justification::centred);
-    mDelayDepthLabel.setText("DEPTH", dontSendNotification);
+    mDelayDepthLabel.setText(delayDepthText, dontSendNotification);
     addAndMakeVisible(mDelayDepthLabel);
     
-    // RATE
+    // DELAY RATE
     AudioParameterFloat* rateParameter = (AudioParameterFloat*)params.getUnchecked(13);
     mDelayRateSlider.setRange(rateParameter->range.start, rateParameter->range.end);
     mDelayRateSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
@@ -239,10 +209,10 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mDelayRateSlider);
     // delay rate label
     mDelayRateLabel.setJustificationType(Justification::centred);
-    mDelayRateLabel.setText("RATE", dontSendNotification);
+    mDelayRateLabel.setText(delayRateText, dontSendNotification);
     addAndMakeVisible(mDelayRateLabel);
     
-    // XTREM FEEDBACK
+    // DELAY XTREM FEEDBACK
     AudioParameterFloat* xTremFeedbackParameter = (AudioParameterFloat*)params.getUnchecked(14);
     mXTremFeedbackSlider.setRange(xTremFeedbackParameter->range.start, xTremFeedbackParameter->range.end);
     mXTremFeedbackSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
@@ -257,10 +227,10 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mXTremFeedbackSlider);
     // x trem feedback label
     mXTremFeedbackLabel.setJustificationType(Justification::centred);
-    mXTremFeedbackLabel.setText("X-TREM FEEDBACK", dontSendNotification);
+    mXTremFeedbackLabel.setText(delayXTremFeedbackText, dontSendNotification);
     addAndMakeVisible(mXTremFeedbackLabel);
     
-    // FEEDBACK
+    // DELAY FEEDBACK
     AudioParameterFloat* feedbackParameter = (AudioParameterFloat*)params.getUnchecked(15);
     mDelayFeedbackSlider.setRange(feedbackParameter->range.start, feedbackParameter->range.end);
     mDelayFeedbackSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
@@ -273,49 +243,87 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     addAndMakeVisible(mDelayFeedbackSlider);
     // delay feedback label
     mDelayFeedbackLabel.setJustificationType(Justification::centred);
-    mDelayFeedbackLabel.setText("FEEDBACK", dontSendNotification);
+    mDelayFeedbackLabel.setText(delayFeedbackText, dontSendNotification);
     addAndMakeVisible(mDelayFeedbackLabel);
 
-    /* DELAY ENDS HERE ***************************************************************************************************************************/
-
-    // SEND BUTTON EVENTS
+    
+    /* SEND BUTTONS - SETTING STYLE, LISTENERS, VISIBLE, & LINK WITH PROCESSOR PARAMETERS *****************************************/
+    
+    // cutoff
+    cutoffSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    cutoffSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    cutoffSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(cutoffSendButton);
     AudioParameterBool* cutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
     cutoffSendButton.setToggleState(*cutoffSendParameter, NotificationType::dontSendNotification);
     cutoffSendButton.addListener(this);
+    // resonance
+    resSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    resSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    resSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(resSendButton);
     AudioParameterBool* resSendParameter = (AudioParameterBool*)params.getUnchecked(7);
     resSendButton.setToggleState(*resSendParameter, NotificationType::dontSendNotification);
     resSendButton.addListener(this);
+    // reverb wet
+    reverbWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    reverbWetSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    reverbWetSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(reverbWetSendButton);
     AudioParameterBool* reverbWetSendParameter = (AudioParameterBool*)params.getUnchecked(8);
     reverbWetSendButton.setToggleState(*reverbWetSendParameter, NotificationType::dontSendNotification);
     reverbWetSendButton.addListener(this);
+    // reverb room size
+    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    reverbSizeSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    reverbSizeSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(reverbSizeSendButton);
     AudioParameterBool* reverbSizeSendParameter = (AudioParameterBool*)params.getUnchecked(9);
     reverbSizeSendButton.setToggleState(*reverbSizeSendParameter, NotificationType::dontSendNotification);
     reverbSizeSendButton.addListener(this);
-    // delay
+    // delay drywet
+    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    delayDryWetSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    delayDryWetSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(delayDryWetSendButton);
     AudioParameterBool* delayDryWetSendParameter = (AudioParameterBool*)params.getUnchecked(16);
     delayDryWetSendButton.setToggleState(*delayDryWetSendParameter, NotificationType::dontSendNotification);
     delayDryWetSendButton.addListener(this);
+    // delay depth
+    delayDepthSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    delayDepthSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    delayDepthSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(delayDepthSendButton);
     AudioParameterBool* delayDepthSendParameter = (AudioParameterBool*)params.getUnchecked(17);
     delayDepthSendButton.setToggleState(*delayDepthSendParameter, NotificationType::dontSendNotification);
     delayDepthSendButton.addListener(this);
+    // delay rate
+    delayRateSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    delayRateSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    delayRateSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(delayRateSendButton);
     AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
     delayRateSendButton.setToggleState(*delayRateSendParameter, NotificationType::dontSendNotification);
     delayRateSendButton.addListener(this);
+    // delay feedback
+    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonOnColourId, sendingLinesColour);
+    delayFeedbackSendButton.setColour(TextButton::ColourIds::buttonColourId, almostBlack);
+    delayFeedbackSendButton.setColour(TextButton::ColourIds::textColourOffId, bypassedLinesColour);
+    addAndMakeVisible(delayFeedbackSendButton);
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
     delayFeedbackSendButton.setToggleState(*delayFeedbackSendParameter, NotificationType::dontSendNotification);
     delayFeedbackSendButton.addListener(this);
     
-    // PERFORMANCE
+    /* PERFORMANCE - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
+
     AudioParameterFloat* perfParameter = (AudioParameterFloat*)params.getUnchecked(10);
     mPerfSlider.setRange(perfParameter->range.start, perfParameter->range.end);
     mPerfSlider.setSliderStyle(Slider::SliderStyle::LinearBarVertical);
-    //mPerfSlider.setAlpha(perfOpacity);
     mPerfSlider.setValue(*perfParameter);
-    //mPerfSlider.setLookAndFeel(&sliderBarLook);
     mPerfSlider.setColour(juce::Slider::trackColourId, sendingLinesColour);
     addAndMakeVisible(mPerfSlider);
-    
     mPerfSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+    // PASS 8 FX PARAMETERS IN ORDER TO CONTROL THEM WITH 1 PERFORMANCE SLIDER
     mPerfSlider.onValueChange = [this,
                                  perfParameter,
                                  filterCutoffParameter,
@@ -345,7 +353,12 @@ TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 {
 }
 
+/** sendFx method:
+                - turn on the link between a parameter and the performance slider
+                - change colour of lines for the UI to adapt to the configuration
+*/
 void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
+    // GET PARAMS
     auto& params = processor.getParameters();
     AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
     AudioParameterBool* filterResSendParameter = (AudioParameterBool*)params.getUnchecked(7);
@@ -356,6 +369,7 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
     
+    // FIND THE CLICKED BUTTON
     if (button == &cutoffSendButton) {
         *filterCutoffSendParameter = true;
         filterCutoffSendColour = sendingLinesColour;
@@ -394,12 +408,17 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
         *delayFeedbackSendParameter = true;
     }
     button->setToggleState(true, NotificationType::dontSendNotification);
-    button->setButtonText("SENDING");
+    button->setButtonText(onSendButtonText);
     joinFinalSendColour    = sendingLinesColour;
     repaint();
 }
 
+/** bypassFx method:
+                - turn off the link between a parameter and the performance slider
+                - change colour of lines for the UI to adapt to the configuration
+*/
 void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
+    // GET PARAMS
     auto& params = processor.getParameters();
     AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
     AudioParameterBool* filterResSendParameter = (AudioParameterBool*)params.getUnchecked(7);
@@ -410,10 +429,12 @@ void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
     AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
 
+    // BOOL TO KNOW IF AT LEAST ONE OF THE LEFT (RESP. RIGHT) BUTTON IS STILL ACTIVE
     bool leftSideOn  = *filterCutoffSendParameter||*filterResSendParameter ||*reverbWetSendParameter||*reverbSizeSendParameter;
     bool rightSideOn = *delayDryWetSendParameter ||*delayDepthSendParameter||*delayRateSendParameter||*delayFeedbackSendParameter;
     
-    // LEFT SIDE
+    // FIND THE CLICKED BUTTON
+    // left side (filter+reverb)
     if (button == &cutoffSendButton) {
         filterCutoffSendColour = bypassedLinesColour;
         if (!*reverbWetSendParameter) {
@@ -456,7 +477,7 @@ void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
             }
         }
         *reverbSizeSendParameter = false;
-    // RIGHT SIDE
+    // right side (delay)
     } else if (button == &delayDryWetSendButton) {
         delayDryWetSendColour = bypassedLinesColour;
         if (!*delayRateSendParameter) {
@@ -501,23 +522,29 @@ void TanenLiveV0AudioProcessorEditor::bypassFx(Button* button) {
         *delayFeedbackSendParameter = false;
     }
     button->setToggleState(false, NotificationType::dontSendNotification);
-    button->setButtonText("BYPASSED");
+    button->setButtonText(offSendButtonText);
     repaint();
 }
 
+/** buttonClicked method:
+                     - is redefined from the Button class
+                     - call sendFx or byPassFx methods depending on On/Off state
+*/
 void TanenLiveV0AudioProcessorEditor::buttonClicked(Button* button) {
-    // WHAT TO DO WITH BUTTON CLICKED
     if (button->getToggleStateValue().getValue()) {
         button->onClick =[this, button]() { bypassFx(button); };
     } else {
         button->onClick =[this, button]() { sendFx(button); };
     }
-  
 }
 
+/** drawSendLines method:
+                     - is called in paint() function
+                     - draw lines with colour matching the sendButtons On/Off state
+*/
 void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     
-    // LEFT SIDE
+    // LEFT SIDE (FILTER + REVERB)
     // FilterCuttoffSend
     g.setColour(filterCutoffSendColour);
     Line<float> filterCutoffLineV (Point<float> (fxWidth*0.5, headerHeight+itemSize+sendSize-sendMargin),
@@ -534,7 +561,6 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> filterResLineH (Point<float> (fxWidth*0.5-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
                                Point<float> (fxWidth-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
     g.drawLine (filterResLineH, lineThickness);
-    
     // ReverbWetSend
     g.setColour(reverbWetSendColour);
     Line<float> reverbWetLineV (Point<float> (fxWidth*1.5, headerHeight+itemSize+sendSize-sendMargin),
@@ -551,9 +577,7 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> reverbSizeLineH (Point<float> (fxWidth*1.5+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
                                Point<float> (fxWidth+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
     g.drawLine (reverbSizeLineH , lineThickness);
-    
-    
-    // FILTER + REVERB
+    // LEFT CENTER JOIN
     // filRevUpperSend line
     g.setColour(filRevUpperSendColour);
     Line<float> filRevUpperLineV (Point<float> (fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
@@ -568,7 +592,7 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
                                  Point<float> (fxWidth*2.5-lineThickness*0.5, pluginHeight-footerHeight*0.5+lineThickness*1.5));
     g.drawLine (filRevLowerLineH, lineThickness);
     
-    // RIGHT SIDE
+    // RIGHT SIDE (DELAY)
     // DelayDryWetSend
     g.setColour(delayDryWetSendColour);
     Line<float> delayDryWetLineV (Point<float> (pluginWidth-fxWidth*1.5, headerHeight+itemSize+sendSize-sendMargin),
@@ -585,7 +609,6 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> delayDepthLineH (Point<float> (pluginWidth-fxWidth*1.5-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
                                Point<float> (pluginWidth-fxWidth-lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
     g.drawLine (delayDepthLineH, lineThickness);
-    
     // DelayRateSend
     g.setColour(delayRateSendColour);
     Line<float> delayRateLineV (Point<float> (pluginWidth-fxWidth*0.5, headerHeight+itemSize+sendSize-sendMargin),
@@ -602,8 +625,7 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     Line<float> delayFeedbackLineH (Point<float> (pluginWidth-fxWidth*0.5+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2+lineThickness*0.5),
                                Point<float> (pluginWidth-fxWidth+lineThickness*0.5, headerHeight+sendMargin+(itemSize+sendSize)*2));
     g.drawLine (delayFeedbackLineH , lineThickness);
-    
-    // DELAY CENTER
+    // RIGHT CENTER JOIN
     // filRevUpperSend line
     g.setColour(delayUpperSendColour);
     Line<float> delayUpperLineV (Point<float> (pluginWidth-fxWidth, headerHeight+itemSize+sendSize+sendMargin-lineThickness*0.5),
@@ -626,39 +648,47 @@ void TanenLiveV0AudioProcessorEditor::drawSendLines(Graphics& g) {
     
 }
 
+/** paint method:
+              - draw lines, rectangles, text, and other basic UI elements at the plugin initialisation
+              - can be call again with repaint() method
+*/
 //==============================================================================
 void TanenLiveV0AudioProcessorEditor::paint (Graphics& g)
 {
-    //g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-    getLookAndFeel().setColour(juce::ColourSelector::backgroundColourId , almostBlack); // KO
+    // BACKGROUND
     g.fillAll(darkDarkGrey);
-
+    // HEADER RECTANGLE
     g.setColour(almostBlack);
     g.fillRect(headerTitlesRectangle);
     g.setColour(darkDarkGrey);
     g.fillRect(performanceTitleRectangle);
     
+    // MAIN TITLES & TEXT
     g.setColour(lightGrey);
     g.drawFittedText("T1000 FACTORY", getLocalBounds().reduced(3), Justification::centredBottom, 1);
     g.setColour(almostBlack);
     g.setFont(logoFontSize+3.5f);
     g.drawFittedText("TANEN LIVE", getLocalBounds().removeFromTop(65), Justification::centred, 1);
-    //g.drawFittedText("MACHINE", getLocalBounds().removeFromTop(125), Justification::centred, 1);
     g.setColour(fontColour);
     g.setFont(logoFontSize);
     g.drawFittedText("TANEN LIVE", getLocalBounds().removeFromTop(50), Justification::centred, 1);
     g.drawFittedText("MACHINE", getLocalBounds().removeFromTop(110), Justification::centred, 1);
     
+    // DRAW LINES
     drawSendLines(g);
 }
 
+/** resized method:
+                - set poisition & size for all the UI elements
+                - is called when window size is changed
+*/
 void TanenLiveV0AudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
+    
+    // SET ZONES
     auto header = area.removeFromTop(headerHeight);
-    // set footer
     area.removeFromBottom(footerHeight);
- 
     auto filterZone = area.removeFromLeft (fxWidth);
     auto reverbZone = area.removeFromLeft (fxWidth);
     auto performanceZone = area.removeFromLeft (fxWidth);
@@ -672,6 +702,7 @@ void TanenLiveV0AudioProcessorEditor::resized()
     mReverbTitle.setBounds(headerTitlesZone.removeFromLeft(fxWidth));
     performanceTitleRectangle = headerTitlesZone.removeFromLeft(fxWidth);
     mDelayTitle.setBounds(headerTitlesZone.removeFromLeft(fxWidth*2));
+    
     // FILTER
     mFilterType.setBounds(header.removeFromLeft(fxWidth).reduced(headerMargin+filterTypeMargin));
     // cutoff slider
@@ -689,7 +720,6 @@ void TanenLiveV0AudioProcessorEditor::resized()
     // res send button
     resSendButton.setBounds(filterZone.removeFromTop(sendSize).reduced(sendMargin));
 
-    
     // REVERB
     // dry slider
     auto reverbDryZone = header.removeFromLeft(fxWidth);
@@ -752,7 +782,6 @@ void TanenLiveV0AudioProcessorEditor::resized()
     performanceZone.removeFromTop(sendMargin);
     mPerfSlider.setBounds(performanceZone);
     t1000ImageComponent.setBounds(performanceZone.reduced(0, imageMargin));
-
 
 }
 
