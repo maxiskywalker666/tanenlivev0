@@ -17,6 +17,11 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
+
+/** SliderLookAndFeel class:
+                        - declares a new drawRotarySlider method to make a custon slider
+                        - declares two members (sliderFillColour, sliderPointerColour) with setters to be able tu custom the slider colours
+*/
 class SliderLookAndFeel : public LookAndFeel_V4
 {
 public:
@@ -59,9 +64,9 @@ private:
     Colour sliderPointerColour = Colour(182, 193, 215); // lightBlue
 };
 
-/**
-        This class contains the declaration of the general parameters and methods that will be used in the Editor for the UI
-        It also declares the AudioProcessor
+/** TanenLiveV0AudioProcessorEditor class:
+                            - contains the declaration of the general parameters and methods that will be used in the Editor for the UI
+                            - declares all the variables and methods for the editor
 */
 class TanenLiveV0AudioProcessorEditor  : public AudioProcessorEditor,
                                          public Button::Listener

@@ -18,6 +18,9 @@
 using namespace juce;
 
 //==============================================================================
+
+/** This constructor contains all the initialisation for the audio & midi settings and the parameters to be ready for action */
+
 TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor (BusesProperties()
@@ -69,8 +72,9 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     addParameter(mDelayDepthSendParameter   = new AudioParameterBool ("delayDepthSend", "DelayDepthSend", false));                     // 17
     addParameter(mDelayRateSendParameter    = new AudioParameterBool ("delayRateSend", "DelayRateSend", false));                       // 18
     addParameter(mDelayFeedbackSendParameter= new AudioParameterBool ("delayFeedbackSend", "DelayFeedbackSend", false));               // 19
-    //TanenLiveV0AudioProcessor::runTest();
 }
+
+/** This desctructor cleans the circular buffer */
 
 TanenLiveV0AudioProcessor::~TanenLiveV0AudioProcessor()
 {
@@ -200,6 +204,7 @@ void TanenLiveV0AudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool TanenLiveV0AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
+  // IMPORTANT FOR LOGIC PLUGIN VALIDATION - THIS PLUGIN IS STEREO ONLY
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
     return true;
@@ -214,22 +219,25 @@ bool TanenLiveV0AudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 }
 #endif
 
-/*void TanenLiveV0AudioProcessor::buttonClicked(Button* button) {
-    
-}*/
-
+/** updateFilter method:
+                    - make the filter a HiPass or Lowpass depending on the type parameter
+                    - update filter parameters (frequency, resonance)
+*/
 void TanenLiveV0AudioProcessor::updateFilter() {
     float freq = *mFilterCutoffParameter;
     float res = *mFilterResParameter;
-    /** LOWPASS */
+    // LOWPASS
     if (*mFilterTypeParameter == 0) {
         *iIRFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(lastSampleRate, freq, res);
-    /** HIPASS */
+    // HIPASS
     } else {
         *iIRFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(lastSampleRate, freq, res);
     }
 }
 
+/** updateFilter method:
+                    - update reverb parameters (dry, wet, roomsize)
+*/
 void TanenLiveV0AudioProcessor::updateReverb() {
     const juce::Reverb::Parameters& reverbParameters = fxReverbChain.getProcessor().getParameters();
     juce::Reverb::Parameters reverbParametersVar;
@@ -240,26 +248,32 @@ void TanenLiveV0AudioProcessor::updateReverb() {
     // Make it a large stereo reverb
     reverbParametersVar.width = 1.0f;
     fxReverbChain.getProcessor().setParameters(reverbParametersVar);
+    
     // DEBUG
     std::cout << "\n roomSize : ";
     std::cout << reverbParameters.roomSize;
     std::cout << "\n dryLevel : ";
     std::cout << reverbParameters.dryLevel;
-    //std::cout << *mReverbDryParameter;
     std::cout << "\n wetLevel : ";
     std::cout << reverbParameters.wetLevel;
     std::cout << "\n \n";
 }
 
-float TanenLiveV0AudioProcessor::lin_interp(float sample_x, float sample_x1, float inPhase)
+/** linInterp method:
+                    - interpolate the sample values to make it continuous
+*/
+float TanenLiveV0AudioProcessor::linInterp(float sample_x, float sample_x1, float inPhase)
 {
     float interp = (1-inPhase) * sample_x + inPhase * sample_x1;
     return interp;
 }
 
+/** testSendFx method:
+                    - indicate boolean values, for testing only
+                    - TODO: make it a real unit test
+*/
 void TanenLiveV0AudioProcessor::testSendFx() {
-    // tester cette valeur du booléen
-    // DEBUG
+    // DISPLAY IN CONSOLE
     std::cout << "\n cutoffSend : ";
     std::cout << *mCutoffSendParameter;
     std::cout << "\n resSend : ";
@@ -278,6 +292,10 @@ void TanenLiveV0AudioProcessor::testSendFx() {
     std::cout << *mDelayFeedbackSendParameter;
 }
 
+/** linkPerformance method:
+                    - link perfParameter value with other parameters
+                    - TODO: make it a real test
+*/
 void TanenLiveV0AudioProcessor::linkPerformance() {
     std::cout << "\n Performance : ";
     std::cout << *mPerfParameter;
@@ -309,14 +327,74 @@ void TanenLiveV0AudioProcessor::linkPerformance() {
     if (*mDelayFeedbackSendParameter) {
         *mDelayFeedbackParameter = (float) *mPerfParameter * feedbackMax;
     }
-    std::cout << "\n CutoffParameter : ";
-    std::cout << *mFilterCutoffParameter;
-    std::cout << "\n ResParameter : ";
-    std::cout << *mFilterResParameter;
 }
 
+/** updateDelay method:
+                    - use & update delay parameters (dryWet, depth, rate, feedback, xtremFeedback)
+                    - creates a lfo and delay with feedback to act on the buffer iteration
+*/
+void TanenLiveV0AudioProcessor::updateDelay(AudioBuffer<float> &buffer, int i, float *leftChannel, float *rightChannel) {
+    
+    // setting lfo output and lfo phase
+    float lfoOut = (2*M_PI * mLFOPhase);
+    mLFOPhase += *mDelayRateParameter / getSampleRate();
+    if (mLFOPhase > 1) {
+        mLFOPhase -= 1;
+    }
+    // depth parameter controls the LFO intensity
+    lfoOut *= *mDelayDepthParameter;
+    
+    float lfoOutMapped = jmap(lfoOut, -1.f, 1.f, 0.005f, 0.03f);
+    
+    // time smoothing to have a fluid sound
+    mDelayTimeSmoothed = mDelayTimeSmoothed - 0.001 * (mDelayTimeSmoothed - lfoOutMapped);
+    mDelayTimeInSamples = getSampleRate() * mDelayTimeSmoothed;
+    
+    mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
+    mCircularBufferRight[mCircularBufferWriteHead] = rightChannel[i] + mFeedbackRight;
+    
+    mDelayReadHead = mCircularBufferWriteHead - mDelayTimeInSamples;
+    
+    // keep it positive
+    if (mDelayReadHead < 0) {
+        mDelayReadHead += mCircularBufferLength;
+    }
+    
+    int readHead_x = (int)mDelayReadHead;
+    int readHead_x1 = readHead_x + 1;
+    float readHeadFloat = mDelayReadHead - readHead_x;
+    
+    if (readHead_x1 >= mCircularBufferLength) {
+        readHead_x1 -= mCircularBufferLength;
+    }
+    
+    // line interpolation
+    float delaySampleLeft = linInterp((float) mCircularBufferLeft[readHead_x], (float) mCircularBufferLeft[readHead_x1], readHeadFloat);
+    float delaySampleRight = linInterp((float) mCircularBufferRight[readHead_x], (float) mCircularBufferRight[readHead_x1], readHeadFloat);
+    
+    // set feedback value
+    mFeedbackLeft = delaySampleLeft* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
+    mFeedbackRight = delaySampleRight* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
+    
+    // move forward
+    mCircularBufferWriteHead++;
+    
+    // set drywet value
+    buffer.setSample(0, i, (buffer.getSample(0, i) * (1-*mDelayDryWetParameter))+(delaySampleLeft*(*mDelayDryWetParameter)));
+    buffer.setSample(1, i, (buffer.getSample(1, i) * (1-*mDelayDryWetParameter))+(delaySampleRight*(*mDelayDryWetParameter)));
+    
+    // reset if needed
+    if (mCircularBufferWriteHead >= mCircularBufferLength) {
+        mCircularBufferWriteHead = 0;
+    }
+}
+
+/** processBlock method:
+                    - process all the audio, midi and other parameters in a continuous mode
+*/
 void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    // INIT BUFFER
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -324,81 +402,39 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // FILTER UPDATE
+    // FILTER
     dsp::AudioBlock<float> block (buffer); // [4]
     lastSampleRate = getSampleRate();
     updateFilter();
     iIRFilter.process(dsp::ProcessContextReplacing<float> (block));
 
-    // REVERB UPDATE
+    // REVERB
     auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples());
     auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
     fxReverbChain.process(contextToUse);
     updateReverb();
 
-    // DELAY UPDATE
-    DBG("DRY WET: " << *mDelayDryWetParameter);
-    DBG("DEPTH: " << *mDelayDepthParameter);
-    DBG("RATE: " << *mDelayRateParameter);
-    DBG("XTREM FEEDBACK: " << *mXTremFeedbackParameter);
-    DBG("FEEDBACK: " << *mDelayFeedbackParameter);
+    // DELAY
+    // debug
+    DBG("delayDryWet: " << *mDelayDryWetParameter);
+    DBG("delayDepth: " << *mDelayDepthParameter);
+    DBG("delayRate: " << *mDelayRateParameter);
+    DBG("xTremFeedback: " << *mXTremFeedbackParameter);
+    DBG("feedback: " << *mDelayFeedbackParameter);
     
     float* leftChannel = buffer.getWritePointer(0);
     float* rightChannel = buffer.getWritePointer(1);
-
+    // walking through the buffer
     for (int i = 0; i < buffer.getNumSamples(); i++)
     {
-        float lfoOut = (2*M_PI * mLFOPhase);
-        mLFOPhase += *mDelayRateParameter / getSampleRate();
-        if (mLFOPhase > 1) {
-            mLFOPhase -= 1;
-        }
-        lfoOut *= *mDelayDepthParameter;
-        
-        float lfoOutMapped = jmap(lfoOut, -1.f, 1.f, 0.005f, 0.03f);
-        
-        mDelayTimeSmoothed = mDelayTimeSmoothed - 0.001 * (mDelayTimeSmoothed - lfoOutMapped);
-        mDelayTimeInSamples = getSampleRate() * mDelayTimeSmoothed;
-        
-        mCircularBufferLeft[mCircularBufferWriteHead] = leftChannel[i] + mFeedbackLeft;
-        mCircularBufferRight[mCircularBufferWriteHead] = rightChannel[i] + mFeedbackRight;
-        
-        mDelayReadHead = mCircularBufferWriteHead - mDelayTimeInSamples;
-        
-        if (mDelayReadHead < 0) {
-            mDelayReadHead += mCircularBufferLength;
-        }
-        
-        int readHead_x = (int)mDelayReadHead;
-        int readHead_x1 = readHead_x + 1;
-        float readHeadFloat = mDelayReadHead - readHead_x;
-        
-        if (readHead_x1 >= mCircularBufferLength) {
-            readHead_x1 -= mCircularBufferLength;
-        }
-        
-        // LIN INTERP
-        float delay_sample_left = lin_interp((float) mCircularBufferLeft[readHead_x], (float) mCircularBufferLeft[readHead_x1], readHeadFloat);
-        float delay_sample_right = lin_interp((float) mCircularBufferRight[readHead_x], (float) mCircularBufferRight[readHead_x1], readHeadFloat);
-        
-        mFeedbackLeft = delay_sample_left* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
-        mFeedbackRight = delay_sample_right* (*mDelayFeedbackParameter + *mXTremFeedbackParameter);
-        
-        mCircularBufferWriteHead++;
-
-        // DRYWET
-        buffer.setSample(0, i, (buffer.getSample(0, i) * (1-*mDelayDryWetParameter))+(delay_sample_left*(*mDelayDryWetParameter)));
-        buffer.setSample(1, i, (buffer.getSample(1, i) * (1-*mDelayDryWetParameter))+(delay_sample_right*(*mDelayDryWetParameter)));
-        
-        if (mCircularBufferWriteHead >= mCircularBufferLength) {
-            mCircularBufferWriteHead = 0;
-        }
+        updateDelay(buffer, i, leftChannel, rightChannel);
     }
     
     // PERFORMANCE
     testSendFx();
     linkPerformance();
 }
+
 
 //==============================================================================
 bool TanenLiveV0AudioProcessor::hasEditor() const
@@ -411,6 +447,10 @@ AudioProcessorEditor* TanenLiveV0AudioProcessor::createEditor()
     return new TanenLiveV0AudioProcessorEditor (*this);
 }
 
+/** getStateInformation method:
+                        - act as a memory to reopen the plugin where it was
+                        - stores in xml format the last value of each parameters
+*/
 //==============================================================================
 void TanenLiveV0AudioProcessor::getStateInformation (MemoryBlock& destData)
 {
@@ -440,6 +480,10 @@ void TanenLiveV0AudioProcessor::getStateInformation (MemoryBlock& destData)
     copyXmlToBinary(*xml, destData);
 }
 
+/** setStateInformation method:
+                        - act as a memory to reopen the plugin where it was
+                        - get from the xml stored with getStateInformation the value of each parameters
+*/
 void TanenLiveV0AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
@@ -472,160 +516,4 @@ void TanenLiveV0AudioProcessor::setStateInformation (const void* data, int sizeI
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new TanenLiveV0AudioProcessor();
-}
-
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#define BEGIN_NAMESPACE(n) namespace n {
-#define END_NAMESPACE }
-
-BEGIN_NAMESPACE(UnitTestValidator)
-
-struct PlayedFret
-{
-    int string = -1;
-    int fret = -1;
-    bool operator == (const PlayedFret& other) const;
-};
-
-bool PlayedFret::operator==(const PlayedFret &other) const
-{
-    std::cout << "this: {" << string << ", " << fret << "} ";
-    std::cout << "other: {" << other.string << ", " << other.fret << "} ";
-    std::cout << std::endl;
-    return string == other.string && fret == other.fret;
-}
-
-struct Fretboard
-{
-    using Solution = std::vector< PlayedFret >;
-    using SolutionSet = std::vector< Solution >;
-    
-    static SolutionSet Make(std::vector<int> tuning,
-                             std::vector<int> input);
-};
-
-Fretboard::SolutionSet Fretboard::Make(std::vector<int> tuning,
-                                       std::vector<int> input)
-{
-    return
-    {
-        std::vector< PlayedFret >
-        {
-            PlayedFret{0, 0},
-            PlayedFret{1, 2},
-            PlayedFret{2, 2},
-            PlayedFret{3, 1},
-            PlayedFret{4, 0},
-            PlayedFret{5, 0},
-        }
-    };
-}
-
-struct FretboardValidator
-{
-    FretboardValidator(std::vector<int> t,
-                             std::vector<int> i) :
-    tuning(t), inputToCheck(i)
-    {
-        solutions = Fretboard::Make(tuning, inputToCheck);
-    }
-    FretboardValidator& with(const PlayedFret& pr)
-    {
-        if ( isValid /* && some check */)
-            return *this;
-        std::cout << "not found in solution " << std::endl;
-        jassertfalse;
-        isValid = false;
-        return *this;
-    }
-    operator bool() const { return isValid; }
-private:
-    bool isValid = true;
-    std::vector<int> tuning;
-    std::vector<int> inputToCheck;
-    Fretboard::SolutionSet solutions;
-    bool verify(const PlayedFret& pf);
-};
-
-bool FretboardValidator::verify(const PlayedFret &pf)
-{
-    for (const auto& fretboard : solutions)
-    {
-        for(const auto& playedFret : fretboard)
-        {
-            if(pf == playedFret)
-                return  true;
-        }
-    }
-    return false;
-}
-
-bool expect(bool expression)
-{
-    if (expression)
-    {
-        std::cout << "good to go!" << std::endl;
-        return true;
-    }
-    std::cout << "failed test!!" << std::endl;
-    return false;
-}
-
-END_NAMESPACE
-
-void TanenLiveV0AudioProcessor::runTest()
-{
-    UnitTestValidator::FretboardValidator candidate(
-    {40, 45, 50, 55, 59, 64},
-    {50, 55});
-    
-    UnitTestValidator::expect(candidate
-                              .with({3, 1})
-                              .with({2, 2}));
-    
-    //jassertfalse;
-    
 }

@@ -16,7 +16,9 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 //==============================================================================
-/**
+/** TanenLiveV0AudioProcessor class:
+                            - contains a bunch of inherited juce methods to treat audio & midi
+                            - declares all the variables and methods for the processor
 */
 class TanenLiveV0AudioProcessor  : public AudioProcessor
 {
@@ -33,7 +35,9 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
-    void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
+    void extracted(AudioBuffer<float> &buffer, int i, float *leftChannel, float *rightChannel);
+    
+void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -57,44 +61,42 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    
+
+    //==============================================================================
     void updateFilter();
     void updateReverb();
+    void updateDelay(AudioBuffer<float> &buffer, int i, float *leftChannel, float *rightChannel);
     void testSendFx();
     void linkPerformance();
-    float lin_interp(float sample_x, float sample_x1, float inPhase);
-
-    // TODO TEST
-    static void runTest();
-
+    float linInterp(float sample_x, float sample_x1, float inPhase);
 
 private:
     // FILTER PARAMETERS
-    AudioParameterInt* mFilterTypeParameter; // 0
+    AudioParameterInt* mFilterTypeParameter;
     AudioParameterFloat* mFilterCutoffParameter;
     AudioParameterFloat* mFilterResParameter;
     // REVERB PARAMETERS
     AudioParameterFloat* mReverbDryParameter;
     AudioParameterFloat* mReverbWetParameter;
-    AudioParameterFloat* mReverbSizeParameter; // 5
+    AudioParameterFloat* mReverbSizeParameter;
     // SEND PARAMETERS
-    AudioParameterBool* mCutoffSendParameter; // 6
+    AudioParameterBool* mCutoffSendParameter;
     AudioParameterBool* mResSendParameter;
     AudioParameterBool* mReverbWetSendParameter;
-    AudioParameterBool* mReverbSizeSendParameter; // 9
+    AudioParameterBool* mReverbSizeSendParameter;
     // PERFORMANCE PARAMETERS
-    AudioParameterFloat* mPerfParameter; // 10
+    AudioParameterFloat* mPerfParameter;
     // DELAY PARAMETERS
-    AudioParameterFloat* mDelayDryWetParameter; // 11
+    AudioParameterFloat* mDelayDryWetParameter;
     AudioParameterFloat* mDelayDepthParameter;
     AudioParameterFloat* mDelayRateParameter;
     AudioParameterFloat* mXTremFeedbackParameter;
-    AudioParameterFloat* mDelayFeedbackParameter; // 15
+    AudioParameterFloat* mDelayFeedbackParameter;
     // DELAY SEND PARAMETERS
-    AudioParameterBool* mDelayDryWetSendParameter; // 16
-    AudioParameterBool* mDelayDepthSendParameter; // 17
-    AudioParameterBool* mDelayRateSendParameter; // 18
-    AudioParameterBool* mDelayFeedbackSendParameter; //19
+    AudioParameterBool* mDelayDryWetSendParameter;
+    AudioParameterBool* mDelayDepthSendParameter;
+    AudioParameterBool* mDelayRateSendParameter;
+    AudioParameterBool* mDelayFeedbackSendParameter;
 
     // VARIABLES
     float lastSampleRate;
@@ -122,6 +124,7 @@ private:
     float rateMax;
     float feedbackMax;
     float xTremFeedbackMax;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TanenLiveV0AudioProcessor)
 };
