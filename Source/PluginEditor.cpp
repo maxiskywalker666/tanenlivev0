@@ -313,6 +313,8 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
     delayFeedbackSendButton.setToggleState(*delayFeedbackSendParameter, NotificationType::dontSendNotification);
     delayFeedbackSendButton.addListener(this);
+    // initialize colours for sending lines with the send parameters
+    setSendingLinesColour();
     
     /* PERFORMANCE - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
 
@@ -346,16 +348,79 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     };
     mPerfSlider.onDragStart = [perfParameter] { perfParameter->beginChangeGesture(); };
     mPerfSlider.onDragEnd = [perfParameter] { perfParameter->endChangeGesture(); };
-
+    
 }
 
 TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 {
 }
 
+/** setSendingLinesColour method:
+                    - sets sending lines colour depending on the parameters
+*/
+void TanenLiveV0AudioProcessorEditor::setSendingLinesColour() {
+    // GET PARAMS
+    auto& params = processor.getParameters();
+    AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
+    AudioParameterBool* filterResSendParameter = (AudioParameterBool*)params.getUnchecked(7);
+    AudioParameterBool* reverbWetSendParameter = (AudioParameterBool*)params.getUnchecked(8);
+    AudioParameterBool* reverbSizeSendParameter = (AudioParameterBool*)params.getUnchecked(9);
+    AudioParameterBool* delayDryWetSendParameter = (AudioParameterBool*)params.getUnchecked(16);
+    AudioParameterBool* delayDepthSendParameter = (AudioParameterBool*)params.getUnchecked(17);
+    AudioParameterBool* delayRateSendParameter = (AudioParameterBool*)params.getUnchecked(18);
+    AudioParameterBool* delayFeedbackSendParameter = (AudioParameterBool*)params.getUnchecked(19);
+    
+    // DRAW DEPENDING ON THE CONFIGURATION
+    if (*filterCutoffSendParameter) {
+        filterCutoffSendColour = sendingLinesColour;
+        filRevUpperSendColour  = sendingLinesColour;
+        filRevLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*filterResSendParameter) {
+        filterResSendColour    = sendingLinesColour;
+        filRevLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*reverbWetSendParameter) {
+        reverbWetSendColour    = sendingLinesColour;
+        filRevUpperSendColour  = sendingLinesColour;
+        filRevLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*reverbSizeSendParameter) {
+        reverbSizeSendColour   = sendingLinesColour;
+        filRevLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*delayDryWetSendParameter) {
+        delayDryWetSendColour = sendingLinesColour;
+        delayUpperSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*delayDepthSendParameter) {
+        delayDepthSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*delayRateSendParameter) {
+        delayRateSendColour   = sendingLinesColour;
+        delayUpperSendColour  = sendingLinesColour;
+        delayLowerSendColour  = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    if (*delayFeedbackSendParameter) {
+        delayFeedbackSendColour = sendingLinesColour;
+        delayLowerSendColour    = sendingLinesColour;
+        joinFinalSendColour    = sendingLinesColour;
+    }
+    repaint();
+}
+
 /** sendFx method:
-                - turn on the link between a parameter and the performance slider
-                - change colour of lines for the UI to adapt to the configuration
+                - turns on the link between a parameter and the performance slider
+                - calls setSendingLinesColour method to change the sending line colours
 */
 void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     // GET PARAMS
@@ -372,44 +437,24 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     // FIND THE CLICKED BUTTON
     if (button == &cutoffSendButton) {
         *filterCutoffSendParameter = true;
-        filterCutoffSendColour = sendingLinesColour;
-        filRevUpperSendColour  = sendingLinesColour;
-        filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &resSendButton) {
         *filterResSendParameter = true;
-        filterResSendColour    = sendingLinesColour;
-        filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &reverbWetSendButton) {
         *reverbWetSendParameter = true;
-        reverbWetSendColour    = sendingLinesColour;
-        filRevUpperSendColour  = sendingLinesColour;
-        filRevLowerSendColour  = sendingLinesColour;
     } else if (button == &reverbSizeSendButton) {
-        reverbSizeSendColour   = sendingLinesColour;
-        filRevLowerSendColour  = sendingLinesColour;
         *reverbSizeSendParameter = true;
     } else if (button == &delayDryWetSendButton) {
-        delayDryWetSendColour = sendingLinesColour;
-        delayUpperSendColour  = sendingLinesColour;
-        delayLowerSendColour  = sendingLinesColour;
         *delayDryWetSendParameter = true;
     } else if (button == &delayDepthSendButton) {
-        delayDepthSendColour  = sendingLinesColour;
-        delayLowerSendColour  = sendingLinesColour;
         *delayDepthSendParameter = true;
     } else if (button == &delayRateSendButton) {
-        delayRateSendColour   = sendingLinesColour;
-        delayUpperSendColour  = sendingLinesColour;
-        delayLowerSendColour  = sendingLinesColour;
         *delayRateSendParameter = true;
     } else if (button == &delayFeedbackSendButton) {
-        delayFeedbackSendColour = sendingLinesColour;
-        delayLowerSendColour    = sendingLinesColour;
         *delayFeedbackSendParameter = true;
     }
     button->setToggleState(true, NotificationType::dontSendNotification);
     button->setButtonText(onSendButtonText);
-    joinFinalSendColour    = sendingLinesColour;
+    setSendingLinesColour();
     repaint();
 }
 
