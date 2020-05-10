@@ -54,12 +54,12 @@ TanenLiveV0AudioProcessor::TanenLiveV0AudioProcessor()
     addParameter(mCutoffSendParameter       = new AudioParameterBool ("cutoffSend", "CutoffSend", false));                             // 6
     addParameter(mResSendParameter          = new AudioParameterBool ("resSend", "ResSend", false));                                   // 7
     addParameter(mReverbWetSendParameter    = new AudioParameterBool ("reverbWetSend", "ReverbWetSend", false));                       // 8
-    addParameter(mReverbSizeSendParameter   = new AudioParameterBool ("reverbSizeSend", "RevebrSizeSend", false));                     // 9
+    addParameter(mReverbSizeSendParameter   = new AudioParameterBool ("reverbSizeSend", "ReverbSizeSend", false));                     // 9
     addParameter(mPerfParameter             = new AudioParameterFloat("performance", "Performance", 0.f, 1.f, 0.f));                   // 10
     addParameter(mDelayDryWetParameter      = new AudioParameterFloat("drywet", "Dry Wet", 0.f, 1.f, 0.f));                            // 11
     addParameter(mDelayDepthParameter       = new AudioParameterFloat("depth", "Depth", 0.f, 1.f, 0.f));                               // 12
     addParameter(mDelayRateParameter        = new AudioParameterFloat("rate", "Rate", rateMin, rateMax, rateMax));                     // 13
-    addParameter(mXTremFeedbackParameter    = new AudioParameterFloat("xTremFeedback", "XTrem Feedback", 0.f, xTremFeedbackMax, 0.f)); // 14
+    addParameter(mXTremFeedbackParameter    = new AudioParameterFloat("xTremFeedback", "XTremFeedback", 0.f, xTremFeedbackMax, 0.f));  // 14
     addParameter(mDelayFeedbackParameter    = new AudioParameterFloat("feedback", "Feedback", 0.f, feedbackMax, 0.f));                 // 15
     addParameter(mDelayDryWetSendParameter  = new AudioParameterBool ("delayDryWetSend", "DelayDryWetSend", false));                   // 16
     addParameter(mDelayDepthSendParameter   = new AudioParameterBool ("delayDepthSend", "DelayDepthSend", false));                     // 17
@@ -410,26 +410,57 @@ AudioProcessorEditor* TanenLiveV0AudioProcessor::createEditor()
 //==============================================================================
 void TanenLiveV0AudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    /*std::unique_ptr<XmlElement> xml(new XmlElement("TanenLiveV0"));
+    std::unique_ptr<XmlElement> xml(new XmlElement("TanenLiveV0SavedParameters"));
+    xml->setAttribute("FilterType", *mFilterTypeParameter);
+    xml->setAttribute("Cutoff", *mFilterCutoffParameter);
+    xml->setAttribute("Resonance", *mFilterResParameter);
+    xml->setAttribute("DryReverb", *mReverbDryParameter);
+    xml->setAttribute("WetReverb", *mReverbWetParameter);
+    xml->setAttribute("RoomSizeReverb", *mReverbSizeParameter);
+    xml->setAttribute("CutoffSend", *mCutoffSendParameter);
+    xml->setAttribute("ResSend", *mResSendParameter);
+    xml->setAttribute("ReverbWetSend", *mReverbWetSendParameter);
+    xml->setAttribute("ReverbSizeSend", *mReverbSizeSendParameter);
+    xml->setAttribute("Performance", *mPerfParameter);
     xml->setAttribute("DelayDryWet", *mDelayDryWetParameter);
     xml->setAttribute("DelayDepth", *mDelayDepthParameter);
     xml->setAttribute("DelayRate", *mDelayRateParameter);
-    xml->setAttribute("DelayPhaseOffset", *mDelayPhaseOffsetParameter);
+    xml->setAttribute("XTremFeedback", *mXTremFeedbackParameter);
     xml->setAttribute("DelayFeedback", *mDelayFeedbackParameter);
+    xml->setAttribute("DelayDryWetSend", *mDelayDryWetSendParameter);
+    xml->setAttribute("DelayDepthSend", *mDelayDepthSendParameter);
+    xml->setAttribute("DelayRateSend", *mDelayRateSendParameter);
+    xml->setAttribute("DelayFeedbackSend", *mDelayFeedbackSendParameter);
+
     
-    copyXmlToBinary(*xml, destData);*/
+    copyXmlToBinary(*xml, destData);
 }
 
 void TanenLiveV0AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    /*std::unique_ptr<XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
-    if (xml.get() != nullptr && xml->hasTagName("TanenLiveV0")) {
-        *mDelayDryWetParameter = xml->getDoubleAttribute("DelayDryWet");
-        *mDelayDepthParameter = xml->getDoubleAttribute("DelayDepth");
-        *mDelayRateParameter = xml->getDoubleAttribute("DelayRate");
-        *mDelayPhaseOffsetParameter = xml->getDoubleAttribute("DelayPhaseOffset");
-        *mDelayFeedbackParameter = xml->getDoubleAttribute("DelayFeedback");
-    }*/
+    std::unique_ptr<XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    if (xml.get() != nullptr && xml->hasTagName("TanenLiveV0SavedParameters")) {
+        *mFilterTypeParameter           = xml->getDoubleAttribute("FilterType");
+        *mFilterCutoffParameter         = xml->getDoubleAttribute("Cutoff");
+        *mFilterResParameter            = xml->getDoubleAttribute("Resonance");
+        *mReverbDryParameter            = xml->getDoubleAttribute("DryReverb");
+        *mReverbWetParameter            = xml->getDoubleAttribute("WetReverb");
+        *mReverbSizeParameter           = xml->getDoubleAttribute("RoomSizeReverb");
+        *mCutoffSendParameter           = xml->getDoubleAttribute("CutoffSend");
+        *mResSendParameter              = xml->getDoubleAttribute("ResSend");
+        *mReverbWetSendParameter        = xml->getDoubleAttribute("ReverbWetSend");
+        *mReverbSizeSendParameter       = xml->getDoubleAttribute("ReverbSizeSend");
+        *mPerfParameter                 = xml->getDoubleAttribute("Performance");
+        *mDelayDryWetParameter          = xml->getDoubleAttribute("DelayDryWet");
+        *mDelayDepthParameter           = xml->getDoubleAttribute("DelayDepth");
+        *mDelayRateParameter            = xml->getDoubleAttribute("DelayRate");
+        *mXTremFeedbackParameter        = xml->getDoubleAttribute("XTremFeedback");
+        *mDelayFeedbackParameter        = xml->getDoubleAttribute("DelayFeedback");
+        *mDelayDryWetSendParameter      = xml->getDoubleAttribute("DelayDryWetSend");
+        *mDelayDepthSendParameter       = xml->getDoubleAttribute("DelayDepthSend");
+        *mDelayRateSendParameter        = xml->getDoubleAttribute("DelayRateSend");
+        *mDelayFeedbackSendParameter    = xml->getDoubleAttribute("DelayFeedbackSend");
+    }
 }
 
 //==============================================================================
