@@ -14,10 +14,10 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class FilterLookAndFeel : public LookAndFeel_V4
+class SliderLookAndFeel : public LookAndFeel_V4
 {
 public:
-    FilterLookAndFeel(){}
+    SliderLookAndFeel(){}
     void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
         {
             auto radius = jmin (width / 2, height / 2) - 4.0f;
@@ -29,10 +29,10 @@ public:
             auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
             
             // fill
-            g.setColour (Colours::grey);
+            g.setColour (sliderFillColour);
             g.fillEllipse (rx, ry, rw, rw);
             // outline
-            g.setColour (Colours::black);
+            g.setColour (sliderPointerColour);
             g.drawEllipse (rx, ry, rw, rw, 3.0f);
             // pointer
             Path p;
@@ -41,79 +41,18 @@ public:
             p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
             p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
             // pointer
-            g.setColour (Colours::black);
+            g.setColour (sliderPointerColour);
             g.fillPath (p);
         }
-};
-
-class ReverbLookAndFeel : public LookAndFeel_V4
-{
-public:
-    ReverbLookAndFeel(){}
-    ~ReverbLookAndFeel(){
-        
+    void setSliderFillColour(Colour c) {
+        sliderFillColour = c;
     }
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
-        {
-            auto radius = jmin (width / 2, height / 2) - 4.0f;
-            auto centreX = x + width  * 0.5f;
-            auto centreY = y + height * 0.5f;
-            auto rx = centreX - radius;
-            auto ry = centreY - radius;
-            auto rw = radius * 2.0f;
-            auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-            
-            // fill
-            g.setColour (Colours::lightsteelblue);
-            g.fillEllipse (rx, ry, rw, rw);
-            // outline
-            g.setColour (Colours::black);
-            g.drawEllipse (rx, ry, rw, rw, 3.0f);
-            // pointer
-            Path p;
-            auto pointerLength = radius * 0.53f;
-            auto pointerThickness = 4.0f;
-            p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
-            p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
-            // pointer
-            g.setColour (Colours::black);
-            g.fillPath (p);
-        }
-};
-
-class DelayLookAndFeel : public LookAndFeel_V4
-{
-public:
-    DelayLookAndFeel(){}
-    ~DelayLookAndFeel(){
-        
+    void setSliderPointerColour(Colour c) {
+        sliderPointerColour = c;
     }
-    void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
-        {
-            auto radius = jmin (width / 2, height / 2) - 4.0f;
-            auto centreX = x + width  * 0.5f;
-            auto centreY = y + height * 0.5f;
-            auto rx = centreX - radius;
-            auto ry = centreY - radius;
-            auto rw = radius * 2.0f;
-            auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
-            
-            // fill
-            g.setColour (Colours::mediumpurple);
-            g.fillEllipse (rx, ry, rw, rw);
-            // outline
-            g.setColour (Colours::black);
-            g.drawEllipse (rx, ry, rw, rw, 3.0f);
-            // pointer
-            Path p;
-            auto pointerLength = radius * 0.53f;
-            auto pointerThickness = 4.0f;
-            p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
-            p.applyTransform (AffineTransform::rotation (angle).translated (centreX, centreY));
-            // pointer
-            g.setColour (Colours::black);
-            g.fillPath (p);
-        }
+private:
+    Colour sliderFillColour = Colour(84, 83, 83); // lightGrey
+    Colour sliderPointerColour = Colour(182, 193, 215); // lightBlue
 };
 
 class SendLookAndFeel : public LookAndFeel_V4
@@ -137,8 +76,8 @@ public:
             buttonArea.translate (offset, offset);
             g.setColour (colour);
             g.fillRect (buttonArea);
-
         }
+    
     void drawButtonText (Graphics& g, TextButton& button, bool isMouseOverButton, bool isButtonDown) override
         {
             auto font = getTextButtonFont (button, button.getHeight());
@@ -183,41 +122,38 @@ public:
     void drawSendLines(Graphics&);
 
 private:
-    // ZONES
-    TextButton headerFrame;
-    TextButton footerFrame;
-    TextButton filterFrame;
-    TextButton reverbFrame;
-    TextButton delayFrame;
-    TextButton performanceFrame;
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     TanenLiveV0AudioProcessor& processor;
-    ImageComponent mImageComponent;
-    FilterLookAndFeel filterLook;
-    ReverbLookAndFeel reverbLook;
-    DelayLookAndFeel delayLook;
-    SendLookAndFeel sendLook;
     // TANEN LIVE General Parameters
+    // IMAGES
+    ImageComponent t1000ImageComponent;
+    // LOOKANDFEEL
+    SliderLookAndFeel filterLook;
+    SliderLookAndFeel reverbLook;
+    SliderLookAndFeel delayLook;
+    Rectangle<int> headerTitlesRectangle;
+    Rectangle<int> performanceTitleRectangle;
     // FILTER Parameters
+    Label mFilterTitle;
+    ComboBox mFilterType;
     Slider mFilterCutoffSlider;
     Label mFilterCutoffLabel;
     Slider mFilterResSlider;
     Label mFilterResLabel;
-    ComboBox mFilterType;
     TextButton cutoffSendButton{"BYPASSED"};
     TextButton resSendButton{"BYPASSED"};
     //TextButton filterSendButton{"SEND"};
     // REVERB Parameters
-    Slider mReverbDrySlider;
+    Label mReverbTitle;
     Slider mReverbWetSlider;
     Label mReverbWetLabel;
     Slider mReverbSizeSlider;
     Label mReverbSizeLabel;
-    Slider mDrySlider; // horizontale slider in the header
+    Slider mReverbDrySlider; // horizontal slider in the header
+    Label mReverbDryLabel;
     TextButton reverbWetSendButton{"BYPASSED"};
     TextButton reverbSizeSendButton{"BYPASSED"};
     // DELAY Parameters
+    Label mDelayTitle;
     Slider mDelayDryWetSlider;
     Label mDelayDryWetLabel;
     Slider mDelayDepthSlider;
@@ -230,33 +166,49 @@ private:
     TextButton delayDepthSendButton{"BYPASSED"};
     TextButton delayRateSendButton{"BYPASSED"};
     TextButton delayFeedbackSendButton{"BYPASSED"};
-    // TODO Replace useless PhaseOffsetSlider with Checkbox ReverseTime
-    Slider mDelayPhaseOffsetSlider;
-    Label mDelayPhaseOffsetLabel;
+    Slider mXTremFeedbackSlider;
+    Label mXTremFeedbackLabel;
     // PERFORMANCE Parameters
     Slider mPerfSlider;
     
     // GUI VARIABLES
-    float fontSize = 15.f;
     float pluginWidth = 600.f;
-    float pluginHeight = 450.f;
-    float headerHeight = 40.f;
+    float pluginHeight = 490.f;
+    float fontSize = 15.f;
+    float logoFontSize = 20.f;
+    float headerHeight = 80.f;
+    float headerTitlesHeight = 40.f;
     float footerHeight = 60.f;
     
     float itemMargin = 15.f;
     float imageMargin = 100.f;
     float headerMargin = 3.f;
+    float filterTypeMargin = 5.f;
     float itemSize = 125.f;
     float sendSize = 50.f;
+    //float sendMargin = 10.f;
     float sendMargin = 10.f;
     float labelMargin = 15.f;
     
-    float perfOpacity= 0.5f;
+    float perfOpacity= 0.7f;
     float fxWidth = 120.f;
     float lineThickness = 4.f;
     
-    Colour bypassedLinesColour     = Colours::white.withAlpha(0.5f);
-    Colour sendingLinesColour      = Colours::red.withAlpha(0.5f);
+    // COLOURS
+    //Colour goodRed                 = Colour(220, 19, 19);
+    Colour almostBlack             = Colour(18, 18, 18);
+    Colour fontColour              = Colours::white;
+    Colour lightGrey               = Colour(84, 83, 83);
+    Colour darkDarkGrey            = Colour(29, 29, 29);
+    Colour grey                    = Colour(61, 61, 61);
+    Colour darkGrey                = Colour(43, 43, 43);
+    Colour lightBlue               = Colour(182, 193, 215);
+    
+    Colour backgroundColor         = almostBlack;
+    Colour bypassedLinesColour     = lightGrey;
+    Colour sendingLinesColour      = lightBlue.withAlpha(perfOpacity); // NOW BLUE
+    
+    
     // ALL SENDING LINES
     // upper left
     Colour filterCutoffSendColour  = bypassedLinesColour;
