@@ -401,19 +401,7 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
-    // FILTER
-    dsp::AudioBlock<float> block (buffer); // [4]
-    lastSampleRate = getSampleRate();
-    updateFilter();
-    iIRFilter.process(dsp::ProcessContextReplacing<float> (block));
-
-    // REVERB
-    auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples());
-    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
-    fxReverbChain.process(contextToUse);
-    updateReverb();
-
+        
     // DELAY
     // debug
     DBG("delayDryWet: " << *mDelayDryWetParameter);
@@ -429,6 +417,22 @@ void TanenLiveV0AudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBu
     {
         updateDelay(buffer, i, leftChannel, rightChannel);
     }
+    
+    // INIT BLOCK
+    dsp::AudioBlock<float> block (buffer);
+    
+    // FILTER
+    lastSampleRate = getSampleRate();
+    updateFilter();
+    iIRFilter.process(dsp::ProcessContextReplacing<float> (block));
+    
+    // REVERB
+    auto blockToUse = block.getSubBlock ((size_t) buffer.getSample(0, 0), (size_t) buffer.getNumSamples());
+    auto contextToUse = juce::dsp::ProcessContextReplacing<float> (blockToUse);
+    fxReverbChain.process(contextToUse);
+    updateReverb();
+    
+
     
     // PERFORMANCE
     testSendFx();
