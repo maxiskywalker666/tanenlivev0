@@ -58,6 +58,14 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
         filterTypeParameter->endChangeGesture();
     };
     mFilterType.setSelectedItemIndex(*filterTypeParameter);
+    PopupMenu menu = *mFilterType.getRootMenu();
+    /*int itemId = mFilterType.getItemId(0);
+    menu.setLookAndFeel(<#LookAndFeel *newLookAndFeel#>);
+    PopupMenu::Options().withTargetComponent (this);
+    PopupMenu::Options().
+    menu.backgroundColourId;
+    menu.highlightedTextColourId;
+    //ComboBox::LookAndFeelMethods::getOptionsForComboBoxPopupMenu(mFilterType, <#Label &#>);*/
     
     // FILTER CUTOFF FREQUENCY
     AudioParameterFloat* filterCutoffParameter = (AudioParameterFloat*)params.getUnchecked(1);
@@ -314,7 +322,7 @@ TanenLiveV0AudioProcessorEditor::TanenLiveV0AudioProcessorEditor (TanenLiveV0Aud
     delayFeedbackSendButton.setToggleState(*delayFeedbackSendParameter, NotificationType::dontSendNotification);
     delayFeedbackSendButton.addListener(this);
     // initialize colours for sending lines with the send parameters
-    setSendingLinesColour();
+    setSendLinesAndButtonDisplay();
     
     /* PERFORMANCE - SETTING ELEMENTS STYLE, MAKE THEM VISIBLE & LINK THEM WITH PROCESSOR PARAMETERS ************************************/
 
@@ -358,7 +366,7 @@ TanenLiveV0AudioProcessorEditor::~TanenLiveV0AudioProcessorEditor()
 /** setSendingLinesColour method:
                     - sets sending lines colour depending on the parameters
 */
-void TanenLiveV0AudioProcessorEditor::setSendingLinesColour() {
+void TanenLiveV0AudioProcessorEditor::setSendLinesAndButtonDisplay() {
     // GET PARAMS
     auto& params = processor.getParameters();
     AudioParameterBool* filterCutoffSendParameter = (AudioParameterBool*)params.getUnchecked(6);
@@ -376,44 +384,60 @@ void TanenLiveV0AudioProcessorEditor::setSendingLinesColour() {
         filRevUpperSendColour  = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        cutoffSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        cutoffSendButton.setButtonText(onSendButtonText);
     }
     if (*filterResSendParameter) {
         filterResSendColour    = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        resSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        resSendButton.setButtonText(onSendButtonText);
     }
     if (*reverbWetSendParameter) {
         reverbWetSendColour    = sendingLinesColour;
         filRevUpperSendColour  = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        reverbWetSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        reverbWetSendButton.setButtonText(onSendButtonText);
     }
     if (*reverbSizeSendParameter) {
         reverbSizeSendColour   = sendingLinesColour;
         filRevLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        reverbSizeSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        reverbSizeSendButton.setButtonText(onSendButtonText);
     }
     if (*delayDryWetSendParameter) {
         delayDryWetSendColour = sendingLinesColour;
         delayUpperSendColour  = sendingLinesColour;
         delayLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        delayDryWetSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        delayDryWetSendButton.setButtonText(onSendButtonText);
     }
     if (*delayDepthSendParameter) {
         delayDepthSendColour  = sendingLinesColour;
         delayLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        delayDepthSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        delayDepthSendButton.setButtonText(onSendButtonText);
     }
     if (*delayRateSendParameter) {
         delayRateSendColour   = sendingLinesColour;
         delayUpperSendColour  = sendingLinesColour;
         delayLowerSendColour  = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        delayRateSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        delayRateSendButton.setButtonText(onSendButtonText);
     }
     if (*delayFeedbackSendParameter) {
         delayFeedbackSendColour = sendingLinesColour;
         delayLowerSendColour    = sendingLinesColour;
         joinFinalSendColour    = sendingLinesColour;
+        delayFeedbackSendButton.setToggleState(true, NotificationType::dontSendNotification);
+        delayFeedbackSendButton.setButtonText(onSendButtonText);
     }
     repaint();
 }
@@ -452,9 +476,7 @@ void TanenLiveV0AudioProcessorEditor::sendFx(Button* button) {
     } else if (button == &delayFeedbackSendButton) {
         *delayFeedbackSendParameter = true;
     }
-    button->setToggleState(true, NotificationType::dontSendNotification);
-    button->setButtonText(onSendButtonText);
-    setSendingLinesColour();
+    setSendLinesAndButtonDisplay();
     repaint();
 }
 

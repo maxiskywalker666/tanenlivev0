@@ -81,7 +81,7 @@ public:
     void sendFx(Button* button);
     void bypassFx(Button* button);
     void drawSendLines(Graphics&);
-    void setSendingLinesColour();
+    void setSendLinesAndButtonDisplay();
 
 private:
     TanenLiveV0AudioProcessor& processor;
